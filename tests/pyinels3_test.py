@@ -1,33 +1,45 @@
 """Unit testing of iNels BUS CU3 library."""
-from pyinels3.pyinels3 import InelsBus3, InelsBusException
-from unittest import TestCase
-from unittest.mock import patch, Mock
-import json
 
-INELS_NAMESPACE = "pyinels3.pyinels3.InelsBus3"
-HOST = "http://localhost"
-PORT = "1000"
-ROOMS = ['Basement', 'First floor', 'Front yard',
-         'Back yard', 'Attic', 'Garrage']
-RAW_DEVICES = """lights:
-name="Main light" column="0" inels="SV_12_Garrrage" read_only="no" row="0"
-name="Wall light" column="1" inels="SV_Wall_Garrage" read_only="no" row="0"
-garage:
-name="Doors" column="0" inels="Doors_Garaz" read_only="no" row="1"
-"""
+from pyinels3.const import (
+    TEST_HOST,
+    TEST_INELS_BUS3_NAMESPACE,
+    TEST_INELS_NAMESPACE,
+    TEST_PORT,
+    TEST_RAW_DEVICES,
+    TEST_ROOMS,
+    TEST_DATA_GARAGE,
+    TEST_DATA_HEATING,
+    TEST_DATA_LIGHT,
+    TEST_DATA_SHUTTER,
+    TEST_DATA_SWITCH,
+    TEST_DATA_THERM
+)
+from pyinels3.pyinels3 import (
+    DeviceType,
+    InelsBus3,
+    InelsBusException,
+    InelsBusDataTypeException,
+    InelsDevice
+)
+
+from pyinels3.inels_device import DeviceType, InelsDevice
+
+import json
+from unittest.mock import patch, Mock
+from unittest import TestCase
 
 
 class InelsBus3Test(TestCase):
     """Class to test iNels BUS CU3 library."""
 
-    @patch(INELS_NAMESPACE)
+    @patch(TEST_INELS_BUS3_NAMESPACE)
     def test_class_calling(self, mock_class):
         """Class instance test"""
-        mock_class(HOST, PORT)
+        mock_class(TEST_HOST, TEST_PORT)
 
         mock_class.assert_called()
         mock_class.assert_called_once()
-        mock_class.assert_called_with(HOST, PORT)
+        mock_class.assert_called_with(TEST_HOST, TEST_PORT)
 
         self.assertEqual(mock_class.call_count, 1)
 
@@ -39,56 +51,182 @@ class InelsBus3Test(TestCase):
             'common_exception', 'Exception occur')
 
         with self.assertRaises(InelsBusException):
-            InelsBus3(HOST, PORT).conn()
+            InelsBus3(TEST_HOST, TEST_PORT).conn()
 
         self.assertEqual(mock_proxy.call_count, 0)
 
-    @patch(f'{INELS_NAMESPACE}.ping')
+    @patch(f'{TEST_INELS_BUS3_NAMESPACE}.ping')
     def test_ping_failed(self, mock_method):
         """Test ping method."""
         mock_method.return_value = False
 
-        ret = InelsBus3(HOST, PORT).ping()
+        ret = InelsBus3(TEST_HOST, TEST_PORT).ping()
 
         self.assertEqual(mock_method.call_count, 1)
         self.assertFalse(ret)
 
-    @patch(f'{INELS_NAMESPACE}.getPlcIp')
+    @patch(f'{TEST_INELS_BUS3_NAMESPACE}.getPlcIp')
     def test_getPlcIp_success(self, mock_method):
         """Test Ip address of the PLC."""
         mock_method.return_value = "192.168.2.10"
 
-        ret = InelsBus3(HOST, PORT).getPlcIp()
+        ret = InelsBus3(TEST_HOST, TEST_PORT).getPlcIp()
 
         self.assertEqual(mock_method.call_count, 1)
         self.assertEqual(ret, "192.168.2.10")
 
-    @patch(f'{INELS_NAMESPACE}.getRooms')
+    @patch(f'{TEST_INELS_BUS3_NAMESPACE}.getRooms')
     def test_getRoomsRaw_list(self, mock_method):
         """Test list of rooms defined on Connection server."""
-        mock_method.return_value = ROOMS
+        mock_method.return_value = TEST_ROOMS
 
-        ret = InelsBus3(HOST, PORT).getRooms()
+        ret = InelsBus3(TEST_HOST, TEST_PORT).getRooms()
 
         self.assertEqual(mock_method.call_count, 1)
         self.assertEqual(len(ret), 6)
         self.assertEqual(ret[1], 'First floor')
 
-    @patch(f'{INELS_NAMESPACE}.getRoomDevicesRaw')
+    @patch(f'{TEST_INELS_BUS3_NAMESPACE}.getRoomDevicesRaw')
     def test_getRoomDevices_list(self, mock_method):
         """Test list of all devices in room."""
-        mock_method.return_value = RAW_DEVICES
-        inels = InelsBus3(HOST, PORT)
+        mock_method.return_value = TEST_RAW_DEVICES
+        inels = InelsBus3(TEST_HOST, TEST_PORT)
 
-        raw = inels.getRoomDevicesRaw('Garrage')
+        raw = inels.getRoomDevicesRaw('room')
         self.assertEqual(mock_method.call_count, 1)
         self.assertEqual(len(raw), len(mock_method.return_value))
 
-        json_obj = inels.getRoomDevices('Garrage')
+        # this is the way how to mock private method
+        with patch.object(inels, '_InelsBus3__readDeviceData', return_value={'Doors_Garage': 0}) as read_data:
+            json_obj = inels.getRoomDevices('room')
 
-        self.assertIsNot(type(str), type(json_obj))
-        self.assertNotEqual(json_obj, raw)
-        self.assertNotEqual(len(json.dumps(json_obj)), len(raw))
+            device = json_obj[0]
 
-        self.assertEqual(json_obj['Garrage']['lights']
-                         [0]['name'], 'Main light')
+            self.assertGreater(len(json_obj), 0)
+            self.assertEqual(device.id, 'Doors_Garage')
+            self.assertEqual(device.title, 'Doors')
+            self.assertEqual(device.value, {'Doors_Garage': 0})
+
+    @patch(f'{TEST_INELS_BUS3_NAMESPACE}.getRooms')
+    def test_getAllDevices(self, mock_method):
+        """Test to load all devices in all rooms. We have simulation only for one room."""
+        mock_method.return_value = ['Garage']
+
+        inels = InelsBus3(TEST_HOST, TEST_PORT)
+
+        with patch.object(inels, 'getRoomDevicesRaw', return_value=TEST_RAW_DEVICES) as raw_devs:
+            with patch.object(inels, '_InelsBus3__readDeviceData', return_value={'Doors_Garage': 0}) as read_data:
+                devices = inels.getAllDevices()
+                self.assertGreater(len(devices), 0)
+
+                lights = [x for x in devices if x.type is DeviceType.LIGHT]
+                self.assertEqual(len(lights), 2)
+                garage = [x for x in devices if x.type is DeviceType.GARAGE]
+                self.assertEqual(len(garage), 1)
+
+    def test_device_type_is_in(self):
+        """Test device type in inels device."""
+        d_type = DeviceType.LIGHT
+        d_type_res = DeviceType.is_in(d_type.value)
+
+        self.assertEqual(d_type, d_type_res)
+
+    def test_device_type_is_not_in(self):
+        """Test device type which is not in enum."""
+        d_type = "undefined_type"
+        d_type_res = DeviceType.is_in(d_type)
+
+        self.assertNotEqual(d_type, d_type_res)
+        self.assertEqual(d_type_res, DeviceType.UNDEFINED)
+
+    def test_observe_bad_request(self):
+        """Test observing data from device with bad response."""
+        inels = InelsBus3(TEST_HOST, TEST_PORT)
+
+        with patch.object(inels, '_InelsBus3__readDeviceData', return_value={'Garage_door': 0}) as read:
+            read.side_effect = InelsBusDataTypeException(
+                "error", "bad data type")
+            with self.assertRaises(InelsBusDataTypeException):
+                data = inels.observe('id')
+                read.assert_called_once_with()
+                self.assertIsNone(data)
+
+    def test_observe_request_success(self):
+        """Test observing data from devices."""
+        inels = InelsBus3(TEST_HOST, TEST_PORT)
+
+        with patch.object(inels, '_InelsBus3__readDeviceData', return_value={'Garage_door': 0}) as read:
+            data = inels.observe(['Garage_door'])
+            self.assertIsNotNone(data)
+            self.assertEqual(data['Garage_door'], 0)
+
+    def test_InelsDevice_loadFromJson(self):
+        """Testing right assigments of all properties of objects."""
+        # THERM
+        therm = TEST_DATA_THERM
+        therm_dev = InelsDevice(therm['name'], type=DeviceType.THERM)
+        therm_dev.loadFromJson(therm)
+
+        self.assertEqual(therm['name'], therm_dev.title)
+        self.assertIsNone(therm_dev.id)
+        self.assertEqual(therm['rele'], therm_dev.rele)
+        self.assertEqual(therm['therm'], therm_dev.temp_current)
+        self.assertEqual(therm['stateth'], therm_dev.temp_set)
+        self.assertEqual(False, therm_dev.read_only)
+        self.assertEqual(DeviceType.THERM, therm_dev.type)
+
+        # LIGHT
+        therm = TEST_DATA_LIGHT
+        therm_dev = InelsDevice(therm['name'], therm['id'], DeviceType.LIGHT)
+        therm_dev.loadFromJson(therm)
+
+        self.assertEqual(therm['name'], therm_dev.title)
+        self.assertEqual(therm['id'], therm_dev.id)
+        self.assertEqual(False, therm_dev.read_only)
+        self.assertEqual(DeviceType.LIGHT, therm_dev.type)
+        self.assertIsNone(therm_dev.rele)
+
+        # SWITCH
+        therm = TEST_DATA_SWITCH
+        therm_dev = InelsDevice(therm['name'], therm['id'], DeviceType.SWITCH)
+        therm_dev.loadFromJson(therm)
+
+        self.assertEqual(therm['name'], therm_dev.title)
+        self.assertEqual(therm['id'], therm_dev.id)
+        self.assertEqual(False, therm_dev.read_only)
+        self.assertEqual(DeviceType.SWITCH, therm_dev.type)
+        self.assertIsNone(therm_dev.temp_current)
+
+        # GARAGE
+        therm = TEST_DATA_GARAGE
+        therm_dev = InelsDevice(therm['name'], therm['id'], DeviceType.GARAGE)
+        therm_dev.loadFromJson(therm)
+
+        self.assertEqual(therm['name'], therm_dev.title)
+        self.assertEqual(therm['id'], therm_dev.id)
+        self.assertEqual(False, therm_dev.read_only)
+        self.assertEqual(DeviceType.GARAGE, therm_dev.type)
+        self.assertIsNone(therm_dev.temp_current)
+
+        # HEATING
+        therm = TEST_DATA_HEATING
+        therm_dev = InelsDevice(therm['name'], therm['id'], DeviceType.HEATING)
+        therm_dev.loadFromJson(therm)
+
+        self.assertEqual(therm['name'], therm_dev.title)
+        self.assertEqual(therm['id'], therm_dev.id)
+        self.assertEqual(False, therm_dev.read_only)
+        self.assertEqual(DeviceType.HEATING, therm_dev.type)
+        self.assertIsNone(therm_dev.temp_current)
+
+        # SHUTTER
+        therm = TEST_DATA_SHUTTER
+        therm_dev = InelsDevice(therm['name'], type=DeviceType.SHUTTER)
+        therm_dev.loadFromJson(therm)
+
+        self.assertEqual(therm['name'], therm_dev.title)
+        self.assertEqual(False, therm_dev.read_only)
+        self.assertEqual(therm['up'], therm_dev.up)
+        self.assertEqual(therm['down'], therm_dev.down)
+        self.assertEqual(DeviceType.SHUTTER, therm_dev.type)
+        self.assertIsNone(therm_dev.id)

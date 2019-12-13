@@ -2,6 +2,7 @@
 import logging
 
 from dataclasses import dataclass
+from .inels_device import DeviceType, InelsDevice
 from xmlrpc.client import ServerProxy
 
 _LOGGER = logging.getLogger(__name__)
@@ -48,31 +49,101 @@ class InelsBus3:
         """List of all devices in defined room."""
         return self.__roomDevicesToJson(room_name)
 
+    def getAllDevices(self):
+        """Get all devices from all rooms."""
+        rooms = self.getRooms()
+
+        devices = []
+        for room in rooms:
+            devices += self.getRoomDevices(room)
+
+        return devices
+
+    def observe(self, device_ids):
+        """Get the value from the proxy by device id."""
+        if not isinstance(device_ids, list):
+            raise InelsBusDataTypeException(
+                'readDeviceData', f'{device_ids} is not a list!')
+        return self.__readDeviceData(device_ids)
+
+    def write(self, devices):
+        """Write data to multiple devices."""
+        if not isinstance(devices, list):
+            raise InelsBusDataTypeException(
+                'write', f'{devices} is not a list!')
+
+        try:
+            command = {}
+            # for device in devices:
+
+            self.__writeValues(command)
+        except Exception as err:
+            raise InelsBusException("write_proxy", err)
+
+    def __writeValues(self, command):
+        """Write data to the proxy."""
+        return self.conn().writeValues(command)
+
     def __roomDevicesToJson(self, room_name):
         """Create json object from devices listed in preffered room."""
         d_type = None
-        result = {}
-        result[room_name] = {}
+        devices = []
 
-        devices = self.getRoomDevicesRaw(self, room_name)
-        list = devices.split('\n')
+        raw_list = self.getRoomDevicesRaw(room_name)
+        list = raw_list.split('\n')
 
         for item in list:
             start = len(item) - 1
             end = len(item)
             if start > 0:
                 if item[start:end] == ":":
-                    if d_type != item[0:start]:
-                        d_type = item[0:start]
-                        result[room_name][d_type] = []
+                    d_type = item[0:start]
                 else:
-                    dev = item.split('" ')
+                    json_dev = item.split('" ')
                     obj = {}
-                    for prop in dev:
-                        i = prop.split("=")
-                        obj[i[0]] = i[1].replace("\"", " ").strip()
-                    result[room_name][d_type].append(obj)
-        return result
+                    for prop in json_dev:
+                        frag = prop.split("=")
+                        obj[frag[0]] = frag[1].replace("\"", " ").strip()
+
+                    device = self.__loadDevice(obj, d_type)
+                    devices.append(device)
+
+        return devices
+
+    def __readDeviceData(self, device_names):
+        """Reading devices data from proxy."""
+        return self.conn().read(device_names)
+
+    def __loadDevice(self, json_device, d_type: str):
+        """Load device to the object structure"""
+        id = None
+        if 'inels' in json_device:
+            id = json_device['inels']
+
+        device = InelsDevice(
+            json_device['name'],
+            id,
+            DeviceType.is_in(d_type))
+        # load data from json
+        device.loadFromJson(json_device)
+
+        # read value state of that device
+        device.value = self.__readDeviceData(
+            self.__get_val_name(device, device.type))
+
+        return device
+
+    @staticmethod
+    def __get_val_name(device: InelsDevice, d_type: DeviceType):
+        """SHUTTER is quite specific object. It does not have ID.
+        UP and DOWN is only defined, which each means ID.
+        I need to get a list of device.id to send them to the proxy method
+        read. When SHUTTER comes, than I need to make a
+        list of up and down props. And send them together to the proxy."""
+        return {
+            DeviceType.SHUTTER: [device.up, device.down],
+            DeviceType.THERM: [device.temp_current, device.temp_set]
+        }.get(d_type, [device.id])
 
 
 @dataclass
@@ -86,3 +157,8 @@ class InelsBusException(Exception):
 @dataclass
 class InelsBusConnectionException(InelsBusException):
     """Connection exception class."""
+
+
+@dataclass
+class InelsBusDataTypeException(InelsBusException):
+    """Bad type exception."""
