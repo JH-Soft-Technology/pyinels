@@ -66,23 +66,19 @@ class InelsBus3:
                 'readDeviceData', f'{device_ids} is not a list!')
         return self.__readDeviceData(device_ids)
 
-    def write(self, devices):
+    def write(self, device):
         """Write data to multiple devices."""
-        if not isinstance(devices, list):
+        if not isinstance(device, InelsDevice):
             raise InelsBusDataTypeException(
-                'write', f'{devices} is not a list!')
-
+                'readDeviceData', f'{device} is not object InelsDevice')
         try:
-            command = {}
-            # for device in devices:
-
-            self.__writeValues(command)
+            self.__writeValues(device.value)
         except Exception as err:
             raise InelsBusException("write_proxy", err)
 
     def __writeValues(self, command):
         """Write data to the proxy."""
-        return self.conn().writeValues(command)
+        self.conn().writeValues(command)
 
     def __roomDevicesToJson(self, room_name):
         """Create json object from devices listed in preffered room."""
