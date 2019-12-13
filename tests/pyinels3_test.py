@@ -1,6 +1,6 @@
 """Unit testing of iNels BUS CU3 library."""
 
-from pyinels3.const import (
+from tests.const_test import (
     TEST_HOST,
     TEST_INELS_BUS3_NAMESPACE,
     TEST_INELS_NAMESPACE,
@@ -159,6 +159,37 @@ class InelsBus3Test(TestCase):
             data = inels.observe(['Garage_door'])
             self.assertIsNotNone(data)
             self.assertEqual(data['Garage_door'], 0)
+
+    def test_write_bad_request(self):
+        """Test write data to the proxy with bad request."""
+        inels = InelsBus3(TEST_HOST, TEST_PORT)
+
+        with patch.object(inels, '_InelsBus3__writeValues', return_value=None) as write:
+            write.side_effect = InelsBusDataTypeException(
+                'write', 'Bad data type to write.')
+
+            with self.assertRaises(InelsBusDataTypeException) as exc:
+                inels.write('not devices list')
+                exc.assert_called_once_with()
+                self.assertEqual(write.call_count, 0)
+
+    @patch(f'{TEST_INELS_BUS3_NAMESPACE}.getRooms')
+    def test_write_request_success(self, mock_method):
+        """Test to write data to the proxy."""
+        mock_method.return_value = ['Garage']
+
+        inels = InelsBus3(TEST_HOST, TEST_PORT)
+
+        with patch.object(inels, 'getRoomDevicesRaw', return_value=TEST_RAW_DEVICES) as raw_devs:
+            with patch.object(inels, '_InelsBus3__readDeviceData', return_value={'Doors_Garage': 0}) as read_data:
+                devices = inels.getAllDevices()
+                self.assertEqual(read_data.call_count, 3)
+
+                lights = [x for x in devices if x.type is DeviceType.LIGHT]
+
+                with patch.object(inels, '_InelsBus3__writeValues', return_value=None) as write:
+                    inels.write(lights[0])
+                    self.assertEqual(write.call_count, 1)
 
     def test_InelsDevice_loadFromJson(self):
         """Testing right assigments of all properties of objects."""
