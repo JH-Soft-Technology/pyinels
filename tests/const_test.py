@@ -1,8 +1,4 @@
 """Const of iNels BUS tests."""
-
-NAME = "pyinels3"
-VERSION = "0.0.1"
-
 TEST_HOST = "http://localhost"
 
 TEST_INELS_NAMESPACE = "pyinels3.pyinels3"
