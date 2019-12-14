@@ -10,6 +10,13 @@ Requirements
 ============
 For smooth using you need to have Python 3.5 or higher.
 
+Install
+=======
+Use PyPI repository
+```
+pip install pyinels3
+```
+
 Usage
 =====
 See the test directory for examples.
@@ -26,7 +33,6 @@ $tox
 Reason
 ======
 I wrote PyInels3 library to use it for [home assistant](https://www.home-assistant.io/) integration.
-In the future will be placed in [PyPI](https://pypi.org/) repository.
 
 Watch Feature
 =============
