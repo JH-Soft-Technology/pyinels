@@ -1,4 +1,4 @@
 """Const of iNels BUS."""
 
 NAME = "pyinels"
-VERSION = "0.0.1"
+VERSION = "0.0.3"
