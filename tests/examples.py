@@ -1,4 +1,4 @@
-from pyinels3.pyinels3 import InelsBus3, InelsDevice
+from inels3 import InelsBus3, InelsDevice
 
 # fill the IP address and Port of your iNels PLC
 inels = InelsBus3('http://localhost', '9000')
