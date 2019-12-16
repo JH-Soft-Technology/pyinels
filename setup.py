@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-from pyinels3.const import NAME, VERSION
+from inels3.const import NAME, VERSION
 
 setup(name=NAME,
       version=VERSION,

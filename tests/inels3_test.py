@@ -14,15 +14,13 @@ from tests.const_test import (
     TEST_DATA_SWITCH,
     TEST_DATA_THERM
 )
-from pyinels3.pyinels3 import (
-    DeviceType,
+from inels3 import (
     InelsBus3,
     InelsBusException,
-    InelsBusDataTypeException,
-    InelsDevice
+    InelsBusDataTypeException
 )
 
-from pyinels3.inels_device import DeviceType, InelsDevice
+from inels3.device import DeviceType, InelsDevice
 
 import json
 from unittest.mock import patch, Mock
