@@ -1,4 +1,4 @@
-PyInels3
+PyInels
 ========
 A Python library that handles communication with proprietary home intelligent system
 named [iNels](https://www.inels.com/) by ElkoEP company.
@@ -14,7 +14,7 @@ Install
 =======
 Use PyPI repository
 ```
-pip install pyinels3
+pip install pyinels
 ```
 
 Usage
@@ -27,12 +27,12 @@ I use [tox](https://tox.readthedocs.io) for testing.
 
 ```
 $ pip install tox
-$tox
+
 ```
 
 Reason
 ======
-I wrote PyInels3 library to use it for [home assistant](https://www.home-assistant.io/) integration.
+I wrote PyInels library to use it for [home assistant](https://www.home-assistant.io/) integration.
 
 Watch Feature
 =============

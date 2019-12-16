@@ -3,7 +3,6 @@
 from tests.const_test import (
     TEST_HOST,
     TEST_INELS_BUS3_NAMESPACE,
-    TEST_INELS_NAMESPACE,
     TEST_PORT,
     TEST_RAW_DEVICES,
     TEST_ROOMS,
@@ -14,7 +13,7 @@ from tests.const_test import (
     TEST_DATA_SWITCH,
     TEST_DATA_THERM
 )
-from inels3 import (
+from inels3.server import (
     InelsBus3,
     InelsBusException,
     InelsBusDataTypeException
@@ -22,7 +21,6 @@ from inels3 import (
 
 from inels3.device import DeviceType, InelsDevice
 
-import json
 from unittest.mock import patch, Mock
 from unittest import TestCase
 
@@ -95,7 +93,11 @@ class InelsBus3Test(TestCase):
         self.assertEqual(len(raw), len(mock_method.return_value))
 
         # this is the way how to mock private method
-        with patch.object(inels, '_InelsBus3__readDeviceData', return_value={'Doors_Garage': 0}) as read_data:
+        with patch.object(
+            inels,
+            '_InelsBus3__readDeviceData',
+            return_value={'Doors_Garage': 0}
+        ):
             json_obj = inels.getRoomDevices('room')
 
             device = json_obj[0]
@@ -107,13 +109,22 @@ class InelsBus3Test(TestCase):
 
     @patch(f'{TEST_INELS_BUS3_NAMESPACE}.getRooms')
     def test_getAllDevices(self, mock_method):
-        """Test to load all devices in all rooms. We have simulation only for one room."""
+        """Test to load all devices in all rooms.
+        We have simulation only for one room."""
         mock_method.return_value = ['Garage']
 
         inels = InelsBus3(TEST_HOST, TEST_PORT)
 
-        with patch.object(inels, 'getRoomDevicesRaw', return_value=TEST_RAW_DEVICES) as raw_devs:
-            with patch.object(inels, '_InelsBus3__readDeviceData', return_value={'Doors_Garage': 0}) as read_data:
+        with patch.object(
+            inels,
+            'getRoomDevicesRaw',
+            return_value=TEST_RAW_DEVICES
+        ):
+            with patch.object(
+                inels,
+                '_InelsBus3__readDeviceData',
+                return_value={'Doors_Garage': 0}
+            ):
                 devices = inels.getAllDevices()
                 self.assertGreater(len(devices), 0)
 
@@ -141,7 +152,11 @@ class InelsBus3Test(TestCase):
         """Test observing data from device with bad response."""
         inels = InelsBus3(TEST_HOST, TEST_PORT)
 
-        with patch.object(inels, '_InelsBus3__readDeviceData', return_value={'Garage_door': 0}) as read:
+        with patch.object(
+            inels,
+            '_InelsBus3__readDeviceData',
+            return_value={'Garage_door': 0}
+        ) as read:
             read.side_effect = InelsBusDataTypeException(
                 "error", "bad data type")
             with self.assertRaises(InelsBusDataTypeException):
@@ -153,7 +168,11 @@ class InelsBus3Test(TestCase):
         """Test observing data from devices."""
         inels = InelsBus3(TEST_HOST, TEST_PORT)
 
-        with patch.object(inels, '_InelsBus3__readDeviceData', return_value={'Garage_door': 0}) as read:
+        with patch.object(
+            inels,
+            '_InelsBus3__readDeviceData',
+            return_value={'Garage_door': 0}
+        ):
             data = inels.observe(['Garage_door'])
             self.assertIsNotNone(data)
             self.assertEqual(data['Garage_door'], 0)
@@ -162,7 +181,11 @@ class InelsBus3Test(TestCase):
         """Test write data to the proxy with bad request."""
         inels = InelsBus3(TEST_HOST, TEST_PORT)
 
-        with patch.object(inels, '_InelsBus3__writeValues', return_value=None) as write:
+        with patch.object(
+            inels,
+            '_InelsBus3__writeValues',
+            return_value=None
+        ) as write:
             write.side_effect = InelsBusDataTypeException(
                 'write', 'Bad data type to write.')
 
@@ -178,14 +201,24 @@ class InelsBus3Test(TestCase):
 
         inels = InelsBus3(TEST_HOST, TEST_PORT)
 
-        with patch.object(inels, 'getRoomDevicesRaw', return_value=TEST_RAW_DEVICES) as raw_devs:
-            with patch.object(inels, '_InelsBus3__readDeviceData', return_value={'Doors_Garage': 0}) as read_data:
+        with patch.object(
+            inels,
+            'getRoomDevicesRaw',
+            return_value=TEST_RAW_DEVICES
+        ):
+            with patch.object(
+                inels,
+                '_InelsBus3__readDeviceData',
+                return_value={'Doors_Garage': 0}
+            ) as read_data:
                 devices = inels.getAllDevices()
                 self.assertEqual(read_data.call_count, 3)
 
                 lights = [x for x in devices if x.type is DeviceType.LIGHT]
 
-                with patch.object(inels, '_InelsBus3__writeValues', return_value=None) as write:
+                with patch.object(
+                    inels, '_InelsBus3__writeValues', return_value=None
+                ) as write:
                     inels.write(lights[0])
                     self.assertEqual(write.call_count, 1)
 
