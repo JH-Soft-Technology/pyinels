@@ -13,13 +13,13 @@ from tests.const_test import (
     TEST_DATA_SWITCH,
     TEST_DATA_THERM
 )
-from inels3.server import (
+from inels.cu3 import (
     InelsBus3,
     InelsBusException,
     InelsBusDataTypeException
 )
 
-from inels3.device import DeviceType, InelsDevice
+from inels.device import DeviceType, InelsDevice
 
 from unittest.mock import patch, Mock
 from unittest import TestCase
