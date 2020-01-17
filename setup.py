@@ -1,11 +1,11 @@
 """Setup script for pyinels package."""
 from setuptools import setup, find_packages
-from inels3.const import NAME, VERSION
+from inels.const import NAME, VERSION
 
 
 setup(name=NAME,
       version=VERSION,
-      url='https://github.com/jhoralek/pyinels3',
+      url='https://github.com/jhoralek/pyinels',
       license='MIT',
       author='Jiri horalek',
       author_email='horalek.jiri@gmail.com',
@@ -17,5 +17,5 @@ setup(name=NAME,
           "Programming Language :: Python :: 3",
           "Programming Language :: Python :: 3.7",
       ],
-      packages=["inels3"],
+      packages=["inels"],
       test_suite='unittest')

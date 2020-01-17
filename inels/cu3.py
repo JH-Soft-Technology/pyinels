@@ -2,7 +2,7 @@
 import logging
 
 from dataclasses import dataclass
-from inels3.device import DeviceType, InelsDevice
+from inels.device import DeviceType, InelsDevice
 from xmlrpc.client import ServerProxy
 
 _LOGGER = logging.getLogger(__name__)

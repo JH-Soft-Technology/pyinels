@@ -1,15 +1,15 @@
 """Const of iNels BUS tests."""
 TEST_HOST = "http://localhost"
 
-TEST_INELS_NAMESPACE = "inels3.server"
-TEST_INELS_BUS3_NAMESPACE = "inels3.server.InelsBus3"
+TEST_INELS_NAMESPACE = "inels.cu3"
+TEST_INELS_BUS3_NAMESPACE = "inels.cu3.InelsBus3"
 
 TEST_PORT = "1000"
 TEST_RAW_DEVICES = """garage:
 name="Doors" column="0" inels="Doors_Garage" read_only="no" row="1"
 lights:
-name="Main light" column="0" inels="SV_12_Garrrage" read_only="no" row="0"
-name="Wall light" column="1" inels="SV_Wall_Garrage" read_only="no" row="0"
+name="Main light" column="0" inels="SV_12_Garage" read_only="no" row="0"
+name="Wall light" column="1" inels="SV_Wall_Garage" read_only="no" row="0"
 """
 TEST_ROOMS = ['Basement', 'First floor', 'Front yard',
               'Back yard', 'Attic', 'Garrage']
