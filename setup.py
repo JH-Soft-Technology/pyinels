@@ -20,5 +20,5 @@ setup(name=NAME,
           "Programming Language :: Python :: 3",
           "Programming Language :: Python :: 3.7",
       ],
-      packages=["inels"],
+      packages=find_packages(),
       test_suite='unittest')

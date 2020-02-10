@@ -8,21 +8,30 @@ from xmlrpc.client import ServerProxy
 _LOGGER = logging.getLogger(__name__)
 
 
-@dataclass
 class InelsBus3:
     """Class for iNels BUS CU3 version."""
-    __host: str
-    __port: str
-    __proxy = None
 
-    def conn(self):
+    def __init__(self, host, port):
+        """Initialize InelsBus3 class."""
+        self.__host = host
+        self.__port = port
+        self.__proxy = None
+
+    @property
+    def proxy(self):
+        """Proxy of the cu3 server."""
+        if isinstance(self._InelsBus3__proxy, ServerProxy):
+            return self.__proxy
+
+        self.__proxy = self.__conn()
+        self.ping()
+        return self.__proxy
+
+    def __conn(self):
         """Instantient InelsBus3 class."""
         try:
-            if self.__proxy is None:
-                self.__proxy = ServerProxy(
-                    self.__host + ":" + str(self.__port))
-                self.__proxy.ping()
-            return self.__proxy
+            con = ServerProxy(self.__host + ":" + str(self.__port))
+            return con
         except BlockingIOError as err:
             raise InelsBusConnectionException(err.errno, err.strerror, err)
         except Exception as err:
@@ -31,19 +40,19 @@ class InelsBus3:
 
     def ping(self):
         """Check connection iNels BUS with ping."""
-        return self.conn().ping()
+        return self.proxy.ping()
 
     def getPlcIp(self):
         """Get Ip address of PLC."""
-        return self.conn().getPlcIP()
+        return self.proxy.getPlcIP()
 
     def getRooms(self):
         """List of all rooms from Connection server website."""
-        return self.conn().getRooms()
+        return self.proxy.getRooms()
 
     def getRoomDevicesRaw(self, room_name):
         """List of all devices in deffined room."""
-        return self.conn().getRoomDevices(room_name)
+        return self.proxy.getRoomDevices(room_name)
 
     def getRoomDevices(self, room_name):
         """List of all devices in defined room."""
@@ -59,26 +68,29 @@ class InelsBus3:
 
         return devices
 
-    def observe(self, device_ids):
+    def read(self, device_ids):
         """Get the value from the proxy by device id."""
         if not isinstance(device_ids, list):
             raise InelsBusDataTypeException(
                 'readDeviceData', f'{device_ids} is not a list!')
         return self.__readDeviceData(device_ids)
 
-    def write(self, device):
+    def write(self, device, value):
         """Write data to multiple devices."""
         if not isinstance(device, InelsDevice):
             raise InelsBusDataTypeException(
                 'readDeviceData', f'{device} is not object InelsDevice')
         try:
-            self.__writeValues(device.value)
+            obj = {}
+            obj[device.id] = value
+
+            self.__writeValues(obj)
         except Exception as err:
             raise InelsBusException("write_proxy", err)
 
     def __writeValues(self, command):
         """Write data to the proxy."""
-        self.conn().writeValues(command)
+        self.proxy.writeValues(command)
 
     def __roomDevicesToJson(self, room_name):
         """Create json object from devices listed in preffered room."""
@@ -97,6 +109,8 @@ class InelsBus3:
                 else:
                     json_dev = item.split('" ')
                     obj = {}
+                    obj["group"] = room_name
+
                     for prop in json_dev:
                         frag = prop.split("=")
                         obj[frag[0]] = frag[1].replace("\"", " ").strip()
@@ -108,7 +122,7 @@ class InelsBus3:
 
     def __readDeviceData(self, device_names):
         """Reading devices data from proxy."""
-        return self.conn().read(device_names)
+        return self.proxy.read(device_names)
 
     def __loadDevice(self, json_device, d_type: str):
         """Load device to the object structure"""
@@ -119,13 +133,10 @@ class InelsBus3:
         device = InelsDevice(
             json_device['name'],
             id,
-            DeviceType.is_in(d_type))
+            DeviceType.is_in(d_type),
+            self.proxy)
         # load data from json
         device.loadFromJson(json_device)
-
-        # read value state of that device
-        device.value = self.__readDeviceData(
-            self.__get_val_name(device, device.type))
 
         return device
 
