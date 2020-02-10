@@ -18,9 +18,7 @@ from inels.cu3 import (
     InelsBusException,
     InelsBusDataTypeException
 )
-
 from inels.device import DeviceType, InelsDevice
-
 from unittest.mock import patch, Mock
 from unittest import TestCase
 
@@ -30,7 +28,7 @@ class InelsBus3Test(TestCase):
 
     @patch(TEST_INELS_BUS3_NAMESPACE)
     def test_class_calling(self, mock_class):
-        """Class instance test"""
+        """Class instance test."""
         mock_class(TEST_HOST, TEST_PORT)
 
         mock_class.assert_called()
@@ -40,16 +38,19 @@ class InelsBus3Test(TestCase):
         self.assertEqual(mock_class.call_count, 1)
 
     @patch('xmlrpc.client.ServerProxy')
-    def test_connection_failed(self, mock_proxy):
+    def test_connection_failed(self, mock_server):
         """Test proxy connection."""
-        mock_proxy.return_value = Mock()
-        mock_proxy.side_effect = InelsBusException(
+        mock_server.return_value = Mock()
+        mock_server.side_effect = InelsBusException(
             'common_exception', 'Exception occur')
 
-        with self.assertRaises(InelsBusException):
-            InelsBus3(TEST_HOST, TEST_PORT).conn()
+        inels = InelsBus3(TEST_HOST, TEST_PORT)
 
-        self.assertEqual(mock_proxy.call_count, 0)
+        with patch.object(inels, 'ping', return_value=True):
+            ret = inels.ping()
+            self.assertEqual(True, ret)
+
+        self.assertEqual(mock_server.call_count, 0)
 
     @patch(f'{TEST_INELS_BUS3_NAMESPACE}.ping')
     def test_ping_failed(self, mock_method):
@@ -86,9 +87,10 @@ class InelsBus3Test(TestCase):
     def test_getRoomDevices_list(self, mock_method):
         """Test list of all devices in room."""
         mock_method.return_value = TEST_RAW_DEVICES
-        inels = InelsBus3(TEST_HOST, TEST_PORT)
 
+        inels = InelsBus3(TEST_HOST, TEST_PORT)
         raw = inels.getRoomDevicesRaw('room')
+
         self.assertEqual(mock_method.call_count, 1)
         self.assertEqual(len(raw), len(mock_method.return_value))
 
@@ -98,14 +100,19 @@ class InelsBus3Test(TestCase):
             '_InelsBus3__readDeviceData',
             return_value={'Doors_Garage': 0}
         ):
-            json_obj = inels.getRoomDevices('room')
+            with patch.object(inels, 'ping', return_value=True):
+                json_obj = inels.getRoomDevices('room')
 
-            device = json_obj[0]
+                device = json_obj[0]
 
-            self.assertGreater(len(json_obj), 0)
-            self.assertEqual(device.id, 'Doors_Garage')
-            self.assertEqual(device.title, 'Doors')
-            self.assertEqual(device.value, {'Doors_Garage': 0})
+                self.assertGreater(len(json_obj), 0)
+                self.assertEqual(device.id, 'Doors_Garage')
+                self.assertEqual(device.title, 'Doors')
+
+                with patch.object(inels, 'read',
+                                  return_value="{'Doors_Garage': '0'}"):
+                    device_value = inels.read(device.id)
+                    self.assertEqual(device_value, "{'Doors_Garage': '0'}")
 
     @patch(f'{TEST_INELS_BUS3_NAMESPACE}.getRooms')
     def test_getAllDevices(self, mock_method):
@@ -125,13 +132,16 @@ class InelsBus3Test(TestCase):
                 '_InelsBus3__readDeviceData',
                 return_value={'Doors_Garage': 0}
             ):
-                devices = inels.getAllDevices()
-                self.assertGreater(len(devices), 0)
+                with patch.object(inels, 'ping', return_value=True):
+                    devices = inels.getAllDevices()
+                    self.assertGreater(len(devices), 0)
 
-                lights = [x for x in devices if x.type is DeviceType.LIGHT]
-                self.assertEqual(len(lights), 2)
-                garage = [x for x in devices if x.type is DeviceType.GARAGE]
-                self.assertEqual(len(garage), 1)
+                    lights = [x for x in devices if x.type
+                              is DeviceType.LIGHT]
+                    self.assertEqual(len(lights), 2)
+                    garage = [x for x in devices if x.type
+                              is DeviceType.GARAGE]
+                    self.assertEqual(len(garage), 1)
 
     def test_device_type_is_in(self):
         """Test device type in inels device."""
@@ -148,7 +158,7 @@ class InelsBus3Test(TestCase):
         self.assertNotEqual(d_type, d_type_res)
         self.assertEqual(d_type_res, DeviceType.UNDEFINED)
 
-    def test_observe_bad_request(self):
+    def test_read_bad_request(self):
         """Test observing data from device with bad response."""
         inels = InelsBus3(TEST_HOST, TEST_PORT)
 
@@ -160,7 +170,7 @@ class InelsBus3Test(TestCase):
             read.side_effect = InelsBusDataTypeException(
                 "error", "bad data type")
             with self.assertRaises(InelsBusDataTypeException):
-                data = inels.observe('id')
+                data = inels.read('id')
                 read.assert_called_once_with()
                 self.assertIsNone(data)
 
@@ -173,7 +183,7 @@ class InelsBus3Test(TestCase):
             '_InelsBus3__readDeviceData',
             return_value={'Garage_door': 0}
         ):
-            data = inels.observe(['Garage_door'])
+            data = inels.read(['Garage_door'])
             self.assertIsNotNone(data)
             self.assertEqual(data['Garage_door'], 0)
 
@@ -190,9 +200,10 @@ class InelsBus3Test(TestCase):
                 'write', 'Bad data type to write.')
 
             with self.assertRaises(InelsBusDataTypeException) as exc:
-                inels.write('not devices list')
-                exc.assert_called_once_with()
-                self.assertEqual(write.call_count, 0)
+                with patch.object(inels, 'ping', return_value=True):
+                    inels.write("", "")
+                    exc.assert_called_once_with()
+                    self.assertEqual(write.call_count, 0)
 
     @patch(f'{TEST_INELS_BUS3_NAMESPACE}.getRooms')
     def test_write_request_success(self, mock_method):
@@ -210,27 +221,32 @@ class InelsBus3Test(TestCase):
                 inels,
                 '_InelsBus3__readDeviceData',
                 return_value={'Doors_Garage': 0}
-            ) as read_data:
-                devices = inels.getAllDevices()
-                self.assertEqual(read_data.call_count, 3)
+            ):
+                with patch.object(inels, 'ping', return_value=True):
+                    devices = inels.getAllDevices()
+                    self.assertEqual(len(devices), 3)
 
-                lights = [x for x in devices if x.type is DeviceType.LIGHT]
+                    lights = [x for x in devices if x.type is DeviceType.LIGHT]
 
-                with patch.object(
-                    inels, '_InelsBus3__writeValues', return_value=None
-                ) as write:
-                    inels.write(lights[0])
-                    self.assertEqual(write.call_count, 1)
+                    with patch.object(
+                        inels, '_InelsBus3__writeValues', return_value=None
+                    ) as write:
+                        inels.write(lights[0], 0)
+                        self.assertEqual(write.call_count, 1)
 
     def test_InelsDevice_loadFromJson(self):
         """Testing right assigments of all properties of objects."""
+
+        proxy = InelsBus3(TEST_HOST, TEST_PORT)
+
         # THERM
         therm = TEST_DATA_THERM
-        therm_dev = InelsDevice(therm['name'], type=DeviceType.THERM)
+        therm_dev = InelsDevice(
+            therm['name'], therm['therm'], DeviceType.THERM, proxy)
         therm_dev.loadFromJson(therm)
 
         self.assertEqual(therm['name'], therm_dev.title)
-        self.assertIsNone(therm_dev.id)
+        self.assertIsNotNone(therm_dev.id)
         self.assertEqual(therm['rele'], therm_dev.rele)
         self.assertEqual(therm['therm'], therm_dev.temp_current)
         self.assertEqual(therm['stateth'], therm_dev.temp_set)
@@ -239,7 +255,8 @@ class InelsBus3Test(TestCase):
 
         # LIGHT
         therm = TEST_DATA_LIGHT
-        therm_dev = InelsDevice(therm['name'], therm['id'], DeviceType.LIGHT)
+        therm_dev = InelsDevice(
+            therm['name'], therm['id'], DeviceType.LIGHT, proxy)
         therm_dev.loadFromJson(therm)
 
         self.assertEqual(therm['name'], therm_dev.title)
@@ -250,7 +267,8 @@ class InelsBus3Test(TestCase):
 
         # SWITCH
         therm = TEST_DATA_SWITCH
-        therm_dev = InelsDevice(therm['name'], therm['id'], DeviceType.SWITCH)
+        therm_dev = InelsDevice(
+            therm['name'], therm['id'], DeviceType.SWITCH, proxy)
         therm_dev.loadFromJson(therm)
 
         self.assertEqual(therm['name'], therm_dev.title)
@@ -261,7 +279,8 @@ class InelsBus3Test(TestCase):
 
         # GARAGE
         therm = TEST_DATA_GARAGE
-        therm_dev = InelsDevice(therm['name'], therm['id'], DeviceType.GARAGE)
+        therm_dev = InelsDevice(
+            therm['name'], therm['id'], DeviceType.GARAGE, proxy)
         therm_dev.loadFromJson(therm)
 
         self.assertEqual(therm['name'], therm_dev.title)
@@ -272,7 +291,8 @@ class InelsBus3Test(TestCase):
 
         # HEATING
         therm = TEST_DATA_HEATING
-        therm_dev = InelsDevice(therm['name'], therm['id'], DeviceType.HEATING)
+        therm_dev = InelsDevice(
+            therm['name'], therm['id'], DeviceType.HEATING, proxy)
         therm_dev.loadFromJson(therm)
 
         self.assertEqual(therm['name'], therm_dev.title)
@@ -283,7 +303,8 @@ class InelsBus3Test(TestCase):
 
         # SHUTTER
         therm = TEST_DATA_SHUTTER
-        therm_dev = InelsDevice(therm['name'], type=DeviceType.SHUTTER)
+        therm_dev = InelsDevice(
+            therm['name'], therm['up'], DeviceType.SHUTTER, proxy)
         therm_dev.loadFromJson(therm)
 
         self.assertEqual(therm['name'], therm_dev.title)
@@ -291,4 +312,4 @@ class InelsBus3Test(TestCase):
         self.assertEqual(therm['up'], therm_dev.up)
         self.assertEqual(therm['down'], therm_dev.down)
         self.assertEqual(DeviceType.SHUTTER, therm_dev.type)
-        self.assertIsNone(therm_dev.id)
+        self.assertIsNotNone(therm_dev.id)

@@ -128,8 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Visual studio code
-.vscode
-
 # Pypirc for deploying new package to PyPI server
 .pypirc

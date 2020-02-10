@@ -1,7 +1,6 @@
 """Common device class for iNels BUS."""
 import logging
 
-from dataclasses import dataclass
 from enum import Enum
 
 _LOGGER = logging.getLogger(__name__)
@@ -29,19 +28,22 @@ class DeviceType(Enum):
             return DeviceType(item)
 
 
-@dataclass
 class InelsDevice:
     """Device class."""
-    title: str
-    id: str = None
-    type: DeviceType = DeviceType.UNDEFINED
-    temp_current: str = None
-    rele: str = None
-    temp_set: str = None
-    down: str = None
-    up: str = None
-    read_only: bool = False
-    value = None
+
+    def __init__(self, title, id, type, proxy):
+        """Initialize InelsDevice class."""
+        self.title = title
+        self.id = id
+        self.type = type
+        self.proxy = proxy
+        self.temp_current: str = None
+        self.rele: str = None
+        self.temp_set: str = None
+        self.down: str = None
+        self.up: str = None
+        self.read_only: bool = False
+        self.value = None
 
     def loadFromJson(self, json_obj):
         """Load addition data from json file except id, type and title."""
@@ -62,3 +64,21 @@ class InelsDevice:
 
         if 'read_only' in json_obj:
             self.read_only = json_obj['read_only'] != 'no'
+
+    def observe(self):
+        """Read the current value of the device."""
+        raw = self.proxy.read([self.id])
+        value = raw[self.id]
+        self.value = value
+
+        return value
+
+    def set_value(self, value):
+        """Set value to the device."""
+        if (self.value != value):
+            self.value = value
+            self._write()
+
+    def _write(self):
+        """Write data to the iNels BUS unit."""
+        self.proxy.write(self, self.value)
