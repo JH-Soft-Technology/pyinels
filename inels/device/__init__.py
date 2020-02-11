@@ -75,7 +75,10 @@ class InelsDevice:
 
     def set_value(self, value):
         """Set value to the device."""
-        if (self.value != value):
+        curr_int = isinstance(self.value, int)
+        new_int = isinstance(value, int)
+
+        if (self.value != value or curr_int is not new_int):
             self.value = value
             self._write()
 

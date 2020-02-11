@@ -6,7 +6,7 @@ from inels.const import (
 
 
 class InelsSwitch:
-    """Switch class b ased on InelsDevice."""
+    """Switch class based on InelsDevice."""
 
     def __init__(self, device):
         """Initialize of object InelsSwitch."""
@@ -15,17 +15,17 @@ class InelsSwitch:
     @property
     def state(self):
         """Return the state of the switch."""
-        if (self.device.value == None):
+        if (self.device.value is None):
             self.device.observe()
 
         val = str(self.device.value)
         attr = ATTR_SWITCH_ON
 
         # it is expression of ternary operator
-        return True if val == attr else False
+        return (True if val == attr else False)
 
     def toggle(self):
         """Toogle the state of the switch."""
-        new_state = True if self.state == False else False
+        new_state = True if self.state is False else False
 
-        self.device.set_value(1 if new_state == True else 0)
+        self.device.set_value(1 if new_state is True else 0)
