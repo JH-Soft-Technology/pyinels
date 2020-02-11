@@ -8,7 +8,7 @@ version CU2 and does not support RF components.
 
 Requirements
 ============
-For smooth using you need to have Python 3.5 or higher.
+For smooth using you need to have Python 3.7 or higher.
 
 Install
 =======
