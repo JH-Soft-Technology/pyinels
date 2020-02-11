@@ -28,7 +28,8 @@ class DeviceTest(TestCase):
 
         self.proxy = InelsBus3(TEST_HOST, TEST_PORT)
         self.device = InelsDevice(TEST_DATA_SWITCH['name'],
-                                  TEST_DATA_SWITCH['id'], DeviceType.SWITCH, self.proxy)
+                                  TEST_DATA_SWITCH['id'],
+                                  DeviceType.SWITCH, self.proxy)
 
         # patching ping method in IneslBus3. It will be executed every test
         for p in self.patches:
