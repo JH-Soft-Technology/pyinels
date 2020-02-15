@@ -85,3 +85,14 @@ class InelsDevice:
     def _write(self):
         """Write data to the iNels BUS unit."""
         self.proxy.write(self, self.value)
+
+    @property
+    def is_available(self):
+        # first test when device has any value
+        if self.value != None:
+            return True
+        else:
+            # if not then try to observer
+            self.observe()
+        # when nothing change then device is not available
+        return self.value != None
