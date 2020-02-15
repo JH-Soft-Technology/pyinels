@@ -8,7 +8,7 @@ MIN_RANGE = RANGE_BRIGHTNESS[0]
 MAX_RANGE = RANGE_BRIGHTNESS[1]
 
 
-class InelsLight:
+class pyLight:
     """Inels class based on InelsDevice."""
 
     def __init__(self, device):

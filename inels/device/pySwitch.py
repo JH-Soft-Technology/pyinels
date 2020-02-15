@@ -5,7 +5,7 @@ from inels.const import (
 )
 
 
-class InelsSwitch:
+class pySwitch:
     """Switch class based on InelsDevice."""
 
     def __init__(self, device):

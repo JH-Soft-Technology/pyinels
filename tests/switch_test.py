@@ -13,13 +13,13 @@ from inels.device import (
     DeviceType
 )
 
-from inels.device.InelsSwitch import InelsSwitch
+from inels.device.pySwitch import pySwitch
 
 from unittest.mock import patch
 from unittest import TestCase
 
 
-class InelsSwitchTest(TestCase):
+class pySwitchTest(TestCase):
     """Class to test iNels switch library."""
 
     def setUp(self):
@@ -36,7 +36,7 @@ class InelsSwitchTest(TestCase):
                                   TEST_DATA_SWITCH['id'],
                                   DeviceType.SWITCH, self.proxy)
 
-        self.switch = InelsSwitch(self.device)
+        self.switch = pySwitch(self.device)
         # patching ping method in IneslBus3. It will be executed every test
         for p in self.patches:
             p.start()
