@@ -13,13 +13,13 @@ from inels.device import (
     DeviceType
 )
 
-from inels.device.InelsLight import InelsLight
+from inels.device.pyLight import pyLight
 
 from unittest.mock import patch
 from unittest import TestCase
 
 
-class InelsLightTest(TestCase):
+class pyLightTest(TestCase):
     """Class to test iNels light library."""
 
     def setUp(self):
@@ -36,7 +36,7 @@ class InelsLightTest(TestCase):
                              TEST_DATA_LIGHT['id'],
                              DeviceType.LIGHT, proxy)
 
-        self.light = InelsLight(device)
+        self.light = pyLight(device)
         # patching ping method in IneslBus3. It will be executed every test
         for p in self.patches:
             p.start()
