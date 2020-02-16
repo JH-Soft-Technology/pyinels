@@ -64,3 +64,16 @@ class pySwitchTest(TestCase):
 
         self.switch.toggle()
         self.assertEqual(self.switch.state, True)
+
+    def test_switch_availability(self):
+        """Test when the switch is available."""
+        # set the device to not availabe
+        self.switch.device.value = None
+
+        # need to change observe to rturn None = is not available, then test
+        # the availability of the device
+        with patch.object(self.switch.device, 'observe', return_value=None):
+            self.assertFalse(self.switch.device.is_available)
+
+        self.switch.device.set_value(0)
+        self.assertTrue(self.switch.device.is_available)
