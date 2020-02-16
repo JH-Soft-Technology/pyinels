@@ -67,11 +67,18 @@ class InelsDevice:
 
     def observe(self):
         """Read the current value of the device."""
-        raw = self.proxy.read([self.id])
-        value = raw[self.id]
-        self.value = value
+        try:
+            raw = self.proxy.read([self.id])
+            value = raw[self.id]
+            self.value = value
+            return value
+        except Exception:
+            # this is the situation when the proxy is
+            # probably not available, then we are going to
+            # se the value to None
+            self.value = None
 
-        return value
+        return None
 
     def set_value(self, value):
         """Set value to the device."""
@@ -88,11 +95,12 @@ class InelsDevice:
 
     @property
     def is_available(self):
+        """Device availability property."""
         # first test when device has any value
-        if self.value != None:
+        if self.value is not None:
             return True
         else:
             # if not then try to observer
             self.observe()
         # when nothing change then device is not available
-        return self.value != None
+        return self.value is not None
