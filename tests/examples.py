@@ -1,5 +1,5 @@
 """Usaage examples."""
-from inels.cu3 import InelsBus3
+from pyinels.cu3 import InelsBus3
 
 # fill the IP address and Port of your iNels PLC
 inels = InelsBus3('http://localhost', '9000')

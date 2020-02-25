@@ -1,6 +1,6 @@
 """Inels light class for iNels BUS."""
 
-from inels.const import (
+from pyinels.const import (
     RANGE_BRIGHTNESS
 )
 

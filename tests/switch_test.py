@@ -4,16 +4,17 @@ from tests.const_test import (
     TEST_DATA_SWITCH,
     TEST_HOST,
     TEST_INELS_BUS3_NAMESPACE,
+    TEST_INELS_DEVICE_NAMESPACE,
     TEST_PORT
 )
 
-from inels.cu3 import InelsBus3
-from inels.device import (
+from pyinels.cu3 import InelsBus3
+from pyinels.device import (
     InelsDevice,
     DeviceType
 )
 
-from inels.device.pySwitch import pySwitch
+from pyinels.device.pySwitch import pySwitch
 
 from unittest.mock import patch
 from unittest import TestCase
@@ -28,7 +29,7 @@ class pySwitchTest(TestCase):
             patch(f'{TEST_INELS_BUS3_NAMESPACE}.ping', return_value=True),
             patch(f'{TEST_INELS_BUS3_NAMESPACE}.read',
                   return_value={TEST_DATA_SWITCH['id']: 1}),
-            patch('inels.device.InelsDevice._write', return_value=None)
+            patch(f'{TEST_INELS_DEVICE_NAMESPACE}._write', return_value=None)
         ]
 
         self.proxy = InelsBus3(TEST_HOST, TEST_PORT)

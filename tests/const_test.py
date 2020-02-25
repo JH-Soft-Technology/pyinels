@@ -1,8 +1,9 @@
 """Const of iNels BUS tests."""
 TEST_HOST = "http://localhost"
 
-TEST_INELS_NAMESPACE = "inels.cu3"
-TEST_INELS_BUS3_NAMESPACE = "inels.cu3.InelsBus3"
+TEST_INELS_NAMESPACE = "pyinels.cu3"
+TEST_INELS_BUS3_NAMESPACE = "pyinels.cu3.InelsBus3"
+TEST_INELS_DEVICE_NAMESPACE = "pyinels.device.InelsDevice"
 
 TEST_PORT = "1000"
 TEST_RAW_DEVICES = """garage:
