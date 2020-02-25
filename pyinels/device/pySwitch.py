@@ -1,6 +1,6 @@
 """Inels switch class for iNels BUS."""
 
-from inels.const import (
+from pyinels.const import (
     ATTR_SWITCH_ON
 )
 

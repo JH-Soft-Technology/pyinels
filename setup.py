@@ -1,6 +1,6 @@
 """Setup script for pyinels package."""
 from setuptools import setup, find_packages
-from inels.const import NAME, VERSION
+from pyinels.const import NAME, VERSION
 
 
 setup(name=NAME,
