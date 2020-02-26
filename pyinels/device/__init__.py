@@ -65,12 +65,25 @@ class InelsDevice:
         if 'read_only' in json_obj:
             self.read_only = json_obj['read_only'] != 'no'
 
-    def observe(self):
+    def observe(self, options=None):
         """Read the current value of the device."""
         try:
+            err_callback = None
+
+            if options:
+                err_callback = options.err_callback
+
+            def success_callback(res):
+                self.value = res
+
+            def errro_callback(ex):
+                if err_callback:
+                    err_callback(ex)
+
             raw = self.proxy.read([self.id])
             value = raw[self.id]
             self.value = value
+
             return value
         except Exception:
             # this is the situation when the proxy is

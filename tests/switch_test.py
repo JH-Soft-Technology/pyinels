@@ -24,7 +24,7 @@ class pySwitchTest(TestCase):
     """Class to test iNels switch library."""
 
     def setUp(self):
-        """Setup all necesary instances and mocks."""
+        """Setup all necessary instances and mocks."""
         self.patches = [
             patch(f'{TEST_INELS_BUS3_NAMESPACE}.ping', return_value=True),
             patch(f'{TEST_INELS_BUS3_NAMESPACE}.read',

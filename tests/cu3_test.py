@@ -3,6 +3,7 @@
 from tests.const_test import (
     TEST_HOST,
     TEST_INELS_BUS3_NAMESPACE,
+    TEST_INELS_DEVICE_NAMESPACE,
     TEST_PORT,
     TEST_RAW_DEVICES,
     TEST_ROOMS,
@@ -25,6 +26,22 @@ from unittest import TestCase
 
 class InelsBus3Test(TestCase):
     """Class to test iNels BUS CU3 library."""
+
+    def setUp(self):
+        """Setup all necessary instances nad mocks."""
+        self.patches = [
+            patch(f'{TEST_INELS_BUS3_NAMESPACE}.ping', return_value=True),
+            patch(f'{TEST_INELS_BUS3_NAMESPACE}.read',
+                  return_value={TEST_DATA_SWITCH['id']: 1}),
+            patch(f'{TEST_INELS_DEVICE_NAMESPACE}._write', return_value=None)
+        ]
+
+    def tearDown(self):
+        """Destroy all instances and mocks."""
+        self.proxy = None
+        self.device = None
+        self.switch = None
+        patch.stopall()
 
     @patch(TEST_INELS_BUS3_NAMESPACE)
     def test_class_calling(self, mock_class):
@@ -176,16 +193,12 @@ class InelsBus3Test(TestCase):
 
     def test_observe_request_success(self):
         """Test observing data from devices."""
-        inels = InelsBus3(TEST_HOST, TEST_PORT)
 
-        with patch.object(
-            inels,
-            '_InelsBus3__readDeviceData',
-            return_value={'Garage_door': 0}
-        ):
-            data = inels.read(['Garage_door'])
-            self.assertIsNotNone(data)
-            self.assertEqual(data['Garage_door'], 0)
+        self.device.observe()
+
+    def test_observer_with_callback(self):
+        """Test observing data form device with callback function."""
+        inels = InelsBus3(TEST_HOST, TEST_PORT)
 
     def test_write_bad_request(self):
         """Test write data to the proxy with bad request."""
