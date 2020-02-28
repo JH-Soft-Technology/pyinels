@@ -8,8 +8,13 @@ from tests.const_test import (
     TEST_PORT
 )
 
+from pyinels.exception import InelsBusClassTypeException
 from pyinels.cu3 import InelsBus3
-from pyinels.device import InelsDevice, DeviceType
+from pyinels.device import (
+    InelsDevice,
+    DeviceType,
+    Observe
+)
 
 from unittest.mock import patch
 from unittest import TestCase
@@ -62,3 +67,69 @@ class DeviceTest(TestCase):
         """Test setting the value of the device."""
         self.device.set_value(0)
         self.assertEqual(0, self.device.value)
+
+        def test_device_type_is_in(self):
+            """Test device type in inels device."""
+        d_type = DeviceType.LIGHT
+        d_type_res = DeviceType.is_in(d_type.value)
+
+        self.assertEqual(d_type, d_type_res)
+
+    def test_device_type_is_not_in(self):
+        """Test device type which is not in enum."""
+        d_type = "undefined_type"
+        d_type_res = DeviceType.is_in(d_type)
+
+        self.assertNotEqual(d_type, d_type_res)
+        self.assertEqual(d_type_res, DeviceType.UNDEFINED)
+
+    def test_observe_request_success(self):
+        """Test observing data from devices."""
+
+        data = self.proxy.read(['KITCHEN_KETTLE_SWITCH'])
+        self.assertIsNotNone(data)
+        self.assertEqual(data['KITCHEN_KETTLE_SWITCH'], 1)
+
+    def test_observe_with_callback(self):
+        """Test observing data form device with callback function."""
+        class Dev:
+            def __init__(self):
+                self.name = "Default Dev class name"
+                self.device = None
+
+        dev = Dev()
+
+        self.assertIsNone(dev.device)
+
+        def _observe_update(device):
+            """Observe update fnc."""
+            dev.device = device
+            dev.name = device.title
+
+        def _error(self):
+            return self.test_observe_with_callback()
+
+        cmd = Observe(_observe_update, _error)
+
+        self.assertNotEqual(self.device.title, dev.name)
+
+        self.device.observe(cmd)
+        self.assertIsNotNone(dev.device)
+
+        self.assertEqual(self.device.title, dev.name)
+        self.assertEqual(self.device.value, 1)
+
+        self.device.set_value(0)
+        self.assertEqual(self.device.value, 0)
+
+        self.device.observe(cmd)  # will read data from mock, so value = 1
+        self.assertEqual(self.device.value, 1)
+
+    def test_observe_requiest_with_bad_options_type(self):
+        """Test the device observe."""
+        observedValue = None
+
+        with self.assertRaises(InelsBusClassTypeException):
+            observedValue = self.device.observe("bad options")
+
+        self.assertIsNone(observedValue)

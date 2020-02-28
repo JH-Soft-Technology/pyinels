@@ -1,3 +1,5 @@
+[![Board Status](https://dev.azure.com/jhoralek/304a2e2f-7696-467f-b538-4ec92723bcee/28f199f2-c5a0-4a4b-a400-85861984b539/_apis/work/boardbadge/91e0de8b-0bbe-45b8-aaca-fc53ebf1125d?columnOptions=1)](https://dev.azure.com/jhoralek/304a2e2f-7696-467f-b538-4ec92723bcee/_boards/board/t/28f199f2-c5a0-4a4b-a400-85861984b539/Microsoft.RequirementCategory/)
+
 PyInels
 ========
 A Python library that handles communication with proprietary home intelligent system

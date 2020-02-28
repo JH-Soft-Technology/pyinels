@@ -1,9 +1,14 @@
 """Library specified for iNels BUS CU3."""
 import logging
 
-from dataclasses import dataclass
 from pyinels.device import DeviceType, InelsDevice
 from xmlrpc.client import ServerProxy
+
+from pyinels.exception import (
+    InelsBusConnectionException,
+    InelsBusDataTypeException,
+    InelsBusException
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -151,21 +156,3 @@ class InelsBus3:
             DeviceType.SHUTTER: [device.up, device.down],
             DeviceType.THERM: [device.temp_current, device.temp_set]
         }.get(d_type, [device.id])
-
-
-@dataclass
-class InelsBusException(Exception):
-    """Base iNels BUS exception."""
-    code: str
-    message: str
-    trace: Exception = None
-
-
-@dataclass
-class InelsBusConnectionException(InelsBusException):
-    """Connection exception class."""
-
-
-@dataclass
-class InelsBusDataTypeException(InelsBusException):
-    """Bad type exception."""
