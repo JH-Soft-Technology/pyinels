@@ -10,12 +10,6 @@ pool:
   vmImage: 'ubuntu-latest'
 strategy:
   matrix:
-    Python27:
-      python.version: '2.7'
-    Python35:
-      python.version: '3.5'
-    Python36:
-      python.version: '3.6'
     Python37:
       python.version: '3.7'
 
@@ -26,11 +20,14 @@ steps:
   displayName: 'Use Python $(python.version)'
 
 - script: |
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt
-  displayName: 'Install dependencies'
+    python -m pip install tox
+    python -m pip install flake8    
+  displayName: 'Install tox and flake8'
 
 - script: |
-    pip install pytest pytest-azurepipelines
-    pytest
-  displayName: 'pytest'
+    python -m unittest discover -s tests -p "*_test.py" -v
+  displayName: 'Unit tests'
+
+- script: |
+    flake8 pyinels tests    
+  displayName: 'Linting with flake8'
