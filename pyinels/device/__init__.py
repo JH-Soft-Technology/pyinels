@@ -2,6 +2,7 @@
 import logging
 
 from enum import Enum
+from pyinels.exception import InelsBusClassTypeException
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -68,24 +69,26 @@ class InelsDevice:
     def observe(self, options=None):
         """Read the current value of the device."""
         try:
-            err_callback = None
-
             if options:
-                err_callback = options.err_callback
-
-            def success_callback(res):
-                self.value = res
-
-            def errro_callback(ex):
-                if err_callback:
-                    err_callback(ex)
+                if not isinstance(options, Observe):
+                    raise InelsBusClassTypeException(
+                        '500', f"""Device.observe options
+                        param has bad type. {type(options)}.
+                        Should by Observe.""")
 
             raw = self.proxy.read([self.id])
             value = raw[self.id]
             self.value = value
 
+            if options:
+                options.callback(self)
+
             return value
+        except InelsBusClassTypeException as ex:
+            raise ex
         except Exception:
+            if options:
+                options.err_callback()
             # this is the situation when the proxy is
             # probably not available, then we are going to
             # se the value to None
@@ -117,3 +120,22 @@ class InelsDevice:
             self.observe()
         # when nothing change then device is not available
         return self.value is not None
+
+
+class Observe:
+    """Class defined observe option object."""
+
+    @property
+    def callback(self):
+        """Callback property."""
+        return self.__callback
+
+    @property
+    def err(self):
+        """Error property."""
+        return self.__err_callback
+
+    def __init__(self, callback, err):
+        """Initialize Observe object."""
+        self.__callback = callback
+        self.__err_callback = err
