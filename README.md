@@ -1,4 +1,5 @@
 [![Board Status](https://dev.azure.com/JH-Soft-Technology/56876c97-c932-49e4-9f94-ee53648b47f2/46ab7c1c-c809-440e-a908-a8bf4905312d/_apis/work/boardbadge/f600c878-c9b8-49eb-8b68-79918bbf1841?columnOptions=1)](https://dev.azure.com/JH-Soft-Technology/56876c97-c932-49e4-9f94-ee53648b47f2/_boards/board/t/46ab7c1c-c809-440e-a908-a8bf4905312d/Microsoft.RequirementCategory/)
+[![Build status](https://dev.azure.com/JH-Soft-Technology/pyinels/_apis/build/status/Pyinels)](https://dev.azure.com/JH-Soft-Technology/pyinels/_build/latest?definitionId=6)
 
 PyInels
 ========
