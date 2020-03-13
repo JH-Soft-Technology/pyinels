@@ -139,7 +139,7 @@ class InelsBus3:
             json_device['name'],
             id,
             DeviceType.is_in(d_type),
-            self.proxy)
+            self)
         # load data from json
         device.loadFromJson(json_device)
 
