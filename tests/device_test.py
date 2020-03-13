@@ -1,5 +1,8 @@
 """Unit testing of iNels device library."""
 
+from pyinels.device.pySwitch import pySwitch
+import json
+
 from tests.const_test import (
     TEST_DATA_SWITCH,
     TEST_HOST,
@@ -133,3 +136,7 @@ class DeviceTest(TestCase):
             observedValue = self.device.observe("bad options")
 
         self.assertIsNone(observedValue)
+
+    def test_device_json_serializable(self):
+        """Test the device json serialize."""
+        serialized = json.dumps(self.device)
