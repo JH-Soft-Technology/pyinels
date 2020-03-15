@@ -1,5 +1,4 @@
 """Unit testing of iNels device library."""
-
 from tests.const_test import (
     TEST_DATA_SWITCH,
     TEST_HOST,
@@ -35,7 +34,7 @@ class DeviceTest(TestCase):
         self.proxy = InelsBus3(TEST_HOST, TEST_PORT)
         self.device = InelsDevice(TEST_DATA_SWITCH['name'],
                                   TEST_DATA_SWITCH['id'],
-                                  DeviceType.SWITCH, self.proxy)
+                                  DeviceType.is_in("on_off"), self.proxy)
 
         # patching ping method in IneslBus3. It will be executed every test
         for p in self.patches:
@@ -68,12 +67,12 @@ class DeviceTest(TestCase):
         self.device.set_value(0)
         self.assertEqual(0, self.device.value)
 
-        def test_device_type_is_in(self):
-            """Test device type in inels device."""
+    def test_device_type_is_in(self):
+        """Test device type in inels device."""
         d_type = DeviceType.LIGHT
         d_type_res = DeviceType.is_in(d_type.value)
 
-        self.assertEqual(d_type, d_type_res)
+        self.assertEqual(d_type.value, d_type_res)
 
     def test_device_type_is_not_in(self):
         """Test device type which is not in enum."""
@@ -81,7 +80,7 @@ class DeviceTest(TestCase):
         d_type_res = DeviceType.is_in(d_type)
 
         self.assertNotEqual(d_type, d_type_res)
-        self.assertEqual(d_type_res, DeviceType.UNDEFINED)
+        self.assertEqual(d_type_res, DeviceType.UNDEFINED.value)
 
     def test_observe_request_success(self):
         """Test observing data from devices."""
@@ -133,3 +132,9 @@ class DeviceTest(TestCase):
             observedValue = self.device.observe("bad options")
 
         self.assertIsNone(observedValue)
+
+    # def test_device_json_serializable(self):
+    #     """Test the device json serialize."""
+    #     serialized = json.dumps(self.device.__dict__)
+
+    #     self.assertIsNotNone(serialized)

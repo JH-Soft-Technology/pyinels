@@ -24,9 +24,9 @@ class DeviceType(Enum):
         # when the item is in the enum then return enum object, otherwise
         # return object type UNDEFINED
         if item not in types:
-            return DeviceType.UNDEFINED
+            return DeviceType.UNDEFINED.value
         else:
-            return DeviceType(item)
+            return item
 
 
 class InelsDevice:

@@ -24,6 +24,7 @@ class pySwitch:
         # it is expression of ternary operator
         return (True if val == attr else False)
 
+    @property
     def toggle(self):
         """Toogle the state of the switch."""
         new_state = True if self.state is False else False
