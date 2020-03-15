@@ -1,8 +1,4 @@
 """Unit testing of iNels device library."""
-
-from pyinels.device.pySwitch import pySwitch
-import json
-
 from tests.const_test import (
     TEST_DATA_SWITCH,
     TEST_HOST,
