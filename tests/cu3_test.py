@@ -160,10 +160,10 @@ class InelsBus3Test(TestCase):
                     self.assertGreater(len(devices), 0)
 
                     lights = [x for x in devices if x.type
-                              is DeviceType.LIGHT]
+                              == DeviceType.LIGHT.value]
                     self.assertEqual(len(lights), 2)
                     garage = [x for x in devices if x.type
-                              is DeviceType.GARAGE]
+                              == DeviceType.GARAGE.value]
                     self.assertEqual(len(garage), 1)
 
     def test_read_bad_request(self):
@@ -218,7 +218,8 @@ class InelsBus3Test(TestCase):
                     devices = self.proxy.getAllDevices()
                     self.assertEqual(len(devices), 3)
 
-                    lights = [x for x in devices if x.type is DeviceType.LIGHT]
+                    lights = [x for x in devices if x.type ==
+                              DeviceType.LIGHT.value]
 
                     with patch.object(
                         self.proxy, '_InelsBus3__writeValues',
