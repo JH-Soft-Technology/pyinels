@@ -1,4 +1,4 @@
-"""Library specified for iNels BUS CU3."""
+"""Library specified for iNels BUS."""
 import logging
 
 from dataclasses import dataclass
@@ -7,7 +7,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 @dataclass
-class InelsBusException(Exception):
+class ApiException(Exception):
     """Base iNels BUS exception."""
     code: str
     message: str
@@ -15,15 +15,15 @@ class InelsBusException(Exception):
 
 
 @dataclass
-class InelsBusConnectionException(InelsBusException):
+class ApiConnectionException(ApiException):
     """Connection exception class."""
 
 
 @dataclass
-class InelsBusDataTypeException(InelsBusException):
+class ApiDataTypeException(ApiException):
     """Bad type exception."""
 
 
 @dataclass
-class InelsBusClassTypeException(InelsBusException):
+class ApiClassTypeException(ApiException):
     """Bad Class type exception."""

@@ -1,11 +1,62 @@
 """Const of iNels BUS tests."""
+TEST_API_NAMESPACE = "pyinels.api"
+TEST_API_CLASS_NAMESPACE = "pyinels.api.Api"
+
+TEST_DATA_THERM = {
+    'title': 'Valve in bedroom',
+    'temp': 'Bedroom_temerature',
+    'rele': 'DIGITALGROUP_0001',
+    'read_only': 'no',
+    'temp_set': 'Bedroom_stateth'
+}
+
+TEST_DATA_LIGHT = {
+    'title': 'Kitchen main light',
+    'id': 'KITCHEN_MAIN_LIGHT',
+    'read_only': 'no'
+}
+
+TEST_DATA_SWITCH = {
+    'title': 'Kitchen kettel switch',
+    'id': 'KITCHEN_KETTLE_SWITCH',
+    'read_only': 'no'
+}
+
+TEST_DATA_SHUTTER = {
+    'title': 'Kitchen shuuter',
+    'up': 'KITCHEN_SHUUTER_1_UP',
+    'down': 'KITCHEN_SHUUTER_1_DOWN',
+    'read_only': 'no'
+}
+
+TEST_DATA_GARAGE = {
+    'title': 'Garage door',
+    'id': 'GARAGE_DOOR',
+    'read_only': 'no'
+}
+
+TEST_DATA_HEATING = {
+    'title': 'Holiday',
+    'id': 'HOLIDAY_HEATING',
+    'read_only': 'no'
+}
+
 TEST_HOST = "http://localhost"
 
-TEST_INELS_NAMESPACE = "pyinels.cu3"
-TEST_INELS_BUS3_NAMESPACE = "pyinels.cu3.InelsBus3"
-TEST_INELS_DEVICE_NAMESPACE = "pyinels.device.InelsDevice"
+TEST_INELS_DEVICE_NAMESPACE = "pyinels.device.Device"
 
 TEST_PORT = "1000"
+
+TEST_RESOURCE_SWITCH = {
+    'column': '0',
+    'group': 'basement',
+    'inels': 'ZA_14_basement',
+    'name': 'Office switch',
+    'read_only': 'no',
+    'row': '1',
+    'type': 'switch'
+}
+
 TEST_RAW_DEVICES = """garage:
 name="Doors" column="0" inels="Doors_Garage" read_only="no" row="1"
 lights:
@@ -15,41 +66,4 @@ name="Wall light" column="1" inels="SV_Wall_Garage" read_only="no" row="0"
 TEST_ROOMS = ['Basement', 'First floor', 'Front yard',
               'Back yard', 'Attic', 'Garrage']
 
-TEST_DATA_THERM = {
-    'name': 'Valve in bedroom',
-    'therm': 'Bedroom_temerature',
-    'rele': 'DIGITALGROUP_0001',
-    'read_only': 'no',
-    'stateth': 'Bedroom_stateth'
-}
-
-TEST_DATA_LIGHT = {
-    'name': 'Kitchen main light',
-    'id': 'KITCHEN_MAIN_LIGHT',
-    'read_only': 'no'
-}
-
-TEST_DATA_SWITCH = {
-    'name': 'Kitchen kettel switch',
-    'id': 'KITCHEN_KETTLE_SWITCH',
-    'read_only': 'no'
-}
-
-TEST_DATA_SHUTTER = {
-    'name': 'Kitchen shuuter',
-    'up': 'KITCHEN_SHUUTER_1_UP',
-    'down': 'KITCHEN_SHUUTER_1_DOWN',
-    'read_only': 'no'
-}
-
-TEST_DATA_GARAGE = {
-    'name': 'Garage door',
-    'id': 'GARAGE_DOOR',
-    'read_only': 'no'
-}
-
-TEST_DATA_HEATING = {
-    'name': 'Holiday',
-    'id': 'HOLIDAY_HEATING',
-    'read_only': 'no'
-}
+TEST_VERSION = "CU3"

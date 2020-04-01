@@ -1,4 +1,4 @@
-"""Library specified for iNels BUS CU3."""
+"""Library specified for iNels BUS."""
 
 from .const import VERSION
 
