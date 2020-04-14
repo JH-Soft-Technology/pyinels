@@ -10,23 +10,24 @@ class pySwitch:
 
     def __init__(self, device):
         """Initialize of object InelsSwitch."""
-        self.device = device
+        self.__device = device
 
     @property
     def state(self):
         """Return the state of the switch."""
-        if (self.device.value is None):
-            self.device.observe()
+        if (self.__device.value is None):
+            self.__device.observe()
 
-        val = str(self.device.value)
+        val = str(self.__device.value)
         attr = ATTR_SWITCH_ON
 
         # it is expression of ternary operator
         return (True if val == attr else False)
 
-    @property
-    def toggle(self):
-        """Toogle the state of the switch."""
-        new_state = True if self.state is False else False
-
-        self.device.set_value(1 if new_state is True else 0)
+    def __repr__(self):
+        """Object representation."""
+        state = "on" if self.state else "off"
+        return "<Switch #{} - " \
+            "title: {}, " \
+            "state: {}" \
+            ">".format(self.__device.id, self.__device.title, state)

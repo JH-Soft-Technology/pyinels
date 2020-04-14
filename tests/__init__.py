@@ -1,1 +1,1 @@
-"""Tests for iNels BUS CU3 library."""
+"""Tests for iNels BUS library."""

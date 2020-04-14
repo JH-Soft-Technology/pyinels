@@ -6,7 +6,7 @@ PyInels
 A Python library that handles communication with proprietary home intelligent system
 named [iNels](https://www.inels.com/) by ElkoEP company.
 
-This package is developed against iNels BUS CU3 version. It is not tested on older
+This package is developed against iNels BUS version. It is not tested on older
 version CU2 and does not support RF components.
 
 Requirements
