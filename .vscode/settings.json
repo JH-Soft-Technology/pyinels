@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "venv/bin/python3",
+    "python.pythonPath": "venv/bin/python",
     /** Enable format on save */
     "editor.formatOnSave": true,
     "python.testing.pytestEnabled": true

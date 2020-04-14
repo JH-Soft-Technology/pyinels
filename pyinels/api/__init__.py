@@ -2,7 +2,7 @@
 
 import logging
 
-from pyinels.api.resources import ApiResource
+from pyinels.device import Device
 
 from pyinels.const import DEVICE_TYPE_DICT
 
@@ -126,7 +126,7 @@ class Api:
                         obj[frag[0]] = frag[1].replace("\"", " ").strip()
 
                     obj["type"] = DEVICE_TYPE_DICT.get(d_type)
-                    devices.append(ApiResource(obj, self))
+                    devices.append(Device(obj, self))
         return devices
 
     def __readDeviceData(self, device_names):

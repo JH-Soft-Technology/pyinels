@@ -21,7 +21,9 @@ class Device(ApiResource):
     @property
     def switch_control(self):
         if self.has_switch_control:
-            return SwitchControl(self, self._ApiResource__api)
+            return SwitchControl(self)
+
+        return None
 
     def __repr__(self):
         """Object representation."""

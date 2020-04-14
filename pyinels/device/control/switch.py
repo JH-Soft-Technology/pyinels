@@ -7,13 +7,11 @@ _LOGGER = logging.getLogger(__name__)
 class SwitchControl:
     """Switch control class."""
 
-    def __init__(self, device, api):
+    def __init__(self, device):
         """Initialize switch control class."""
-        super().__init__(self, device, api)
+        self.__device = device
 
     @property
     def toggle(self):
         """Toogle the state of the switch."""
-        new_state = True if self.__device.state is False else False
-
-        self.__device.set_value(1 if new_state is True else 0)
+        self.__device.set_value(1 if self.__device.value == 0 else 0)

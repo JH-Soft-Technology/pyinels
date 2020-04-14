@@ -92,7 +92,7 @@ class ApiResource:
     @property
     def value(self):
         """Value of the returned object."""
-        if hasattr(self, '__value'):
+        if hasattr(self, '_ApiResource__value'):
             return self.__value
 
         return None
@@ -133,24 +133,29 @@ class ApiResource:
 
     def set_value(self, value):
         """Set value to the device."""
+
+        # initialize __value attribute
+        if hasattr(self, '_ApiResource__value') is False:
+            self.__value = 0
+
         curr_int = isinstance(self.__value, int)
         new_int = isinstance(value, int)
 
         if (self.__value != value or curr_int is not new_int):
             self.__value = value
-            self.__api.__write(self, value)
+            self.__api.write(self, value)
 
     @property
     def is_available(self):
         """Device availability property."""
         # first test when device has any value
-        if self.__value is not None:
+        if hasattr(self, '_ApiResource__value'):
             return True
         else:
             # if not then try to observer
             self.observe()
         # when nothing change then device is not available
-        return self.__value is not None
+        return False if self.__value is None else True
 
 
 class Observe:

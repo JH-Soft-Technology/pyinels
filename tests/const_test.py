@@ -62,6 +62,8 @@ name="Doors" column="0" inels="Doors_Garage" read_only="no" row="1"
 lights:
 name="Main light" column="0" inels="SV_12_Garage" read_only="no" row="0"
 name="Wall light" column="1" inels="SV_Wall_Garage" read_only="no" row="0"
+on_off:
+name="Main switch" column="2" inels="ZA_01_GARAGE" read_only="no" row="0"
 """
 TEST_ROOMS = ['Basement', 'First floor', 'Front yard',
               'Back yard', 'Attic', 'Garrage']
