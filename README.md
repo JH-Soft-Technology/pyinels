@@ -40,3 +40,5 @@ I wrote PyInels library to use it for [home assistant](https://www.home-assistan
 Watch Feature
 =============
 In the future I would like to rewrite the library with better efficiency such ass [Asyncio](https://blog.heroku.com/python37-dataclasses-async-await#asyncio-and-the-code-async-code-code-await-code-keywords).
+
+[![buy me a coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/jhoralek)
