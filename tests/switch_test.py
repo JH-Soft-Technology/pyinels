@@ -51,11 +51,10 @@ class PySwitchTest(TestCase):
 
             # the switch at the beggining should be turned off
             self.assertFalse(p.state)
-            self.assertTrue(self.device.has_switch_control)
 
             with patch.object(self.api, '_Api__writeValues',
                               return_value=None):
                 # tur on the switch
-                self.device.switch_control.toggle
+                p.turn_on()
 
                 self.assertTrue(p.state)
