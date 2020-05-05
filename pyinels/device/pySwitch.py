@@ -24,6 +24,14 @@ class pySwitch:
         # it is expression of ternary operator
         return (True if val == attr else False)
 
+    def turn_off(self):
+        """Turn the switch off."""
+        self.__device.set_value(0)
+
+    def turn_on(self):
+        """Turn the switch on."""
+        self.__device.set_value(1)
+
     def __repr__(self):
         """Object representation."""
         state = "on" if self.state else "off"
