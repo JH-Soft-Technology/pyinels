@@ -24,6 +24,16 @@ class pySwitch:
         # it is expression of ternary operator
         return (True if val == attr else False)
 
+    @property
+    def name(self):
+        """Name of the device."""
+        return self.__device.title
+
+    @property
+    def unique_id(self):
+        """Unique id of the device."""
+        return self.__device.id
+
     def turn_off(self):
         """Turn the switch off."""
         self.__device.set_value(0)
