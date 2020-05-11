@@ -8,6 +8,7 @@ from tests.const_test import (
     TEST_HOST,
     TEST_PORT,
     TEST_RAW_DEVICES,
+    TEST_RAW_DUPLICIT_DEVICES,
     TEST_ROOMS,
     TEST_VERSION
 )
@@ -118,3 +119,13 @@ class ApiTest(TestCase):
                 patch.stopall()
                 device_value = self.proxy.read([device.id])
                 self.assertEqual(device_value, {'Doors_Garage': 0})
+
+    @patch(f'{TEST_API_CLASS_NAMESPACE}.getRoomDevicesRaw')
+    def test_not_duplicit_entries(self, mock_method):
+        """Test duplicit entries inside of device list."""
+        mock_method.return_value = TEST_RAW_DUPLICIT_DEVICES
+
+        with patch.object(self.proxy, 'ping', return_value=True):
+            obj_list = self.proxy.getRoomDevices('room')
+
+            self.assertEqual(len(obj_list), 2)
