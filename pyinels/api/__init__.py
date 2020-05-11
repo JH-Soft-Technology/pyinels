@@ -126,7 +126,18 @@ class Api:
                         obj[frag[0]] = frag[1].replace("\"", " ").strip()
 
                     obj["type"] = DEVICE_TYPE_DICT.get(d_type)
-                    devices.append(Device(obj, self))
+
+                    is_in = False
+                    # check when the item with this ID is already inside
+                    # of the collection
+                    for x in devices:
+                        if x.id == obj["inels"]:
+                            is_in = True
+                            break
+
+                    if is_in is False:
+                        devices.append(Device(obj, self))
+
         return devices
 
     def __readDeviceData(self, device_names):
