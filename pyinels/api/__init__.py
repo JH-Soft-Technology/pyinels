@@ -2,15 +2,28 @@
 
 import logging
 
+from functools import partial
 from pyinels.device import Device
 
-from pyinels.const import DEVICE_TYPE_DICT
+from pyinels.const import (
+    ATTR_DOWN,
+    ATTR_GROUP,
+    ATTR_ID,
+    ATTR_SHUTTER,
+    ATTR_TEMP,
+    ATTR_THERM,
+    ATTR_TYPE,
+    ATTR_UP,
+    DEVICE_TYPE_DICT,
+    INELS_BUS_ATTR_DICT
+)
 
 from pyinels.exception import (
     ApiConnectionException,
     ApiDataTypeException,
     ApiException
 )
+
 
 from xmlrpc.client import ServerProxy
 
@@ -119,26 +132,67 @@ class Api:
                 else:
                     json_dev = item.split('" ')
                     obj = {}
-                    obj["group"] = room_name
+                    obj[INELS_BUS_ATTR_DICT.get(ATTR_GROUP)] = room_name
 
                     for prop in json_dev:
                         frag = prop.split("=")
                         obj[frag[0]] = frag[1].replace("\"", " ").strip()
 
-                    obj["type"] = DEVICE_TYPE_DICT.get(d_type)
+                    obj[INELS_BUS_ATTR_DICT
+                        .get(ATTR_TYPE)] = DEVICE_TYPE_DICT.get(d_type)
 
                     is_in = False
+
+                    # when not unieque id is defined, then we need own
+                    if INELS_BUS_ATTR_DICT.get(ATTR_ID) not in obj:
+                        self.__recognizeDevice(obj)
+
                     # check when the item with this ID is already inside
                     # of the collection
                     for x in devices:
-                        if x.id == obj["inels"]:
-                            is_in = True
-                            break
+                        if INELS_BUS_ATTR_DICT.get(ATTR_ID) in obj:
+                            if x.id == obj[INELS_BUS_ATTR_DICT.get(ATTR_ID)]:
+                                is_in = True
+                                break
 
                     if is_in is False:
                         devices.append(Device(obj, self))
 
         return devices
+
+    def __recognizeDevice(self, raw_device):
+        """Some of the devices does not have unique id
+        presented in inels attribute. We need do create
+        one from other unique attributes."""
+
+        def set_shutter_id(dev):
+            """Set the id to the shutter."""
+            raw_device[INELS_BUS_ATTR_DICT.get(
+                ATTR_ID)] = raw_device[INELS_BUS_ATTR_DICT.get(ATTR_UP)] + \
+                "_" + raw_device[INELS_BUS_ATTR_DICT.get(ATTR_DOWN)]
+
+            return raw_device
+
+        def set_therm_id(dev):
+            """Set the id to the therms."""
+            raw_device[INELS_BUS_ATTR_DICT.get(
+                ATTR_ID)] = raw_device[INELS_BUS_ATTR_DICT.get(ATTR_TEMP)]
+
+            return raw_device
+
+        # use a switch to create identifier inside of the raw data
+        # from usefull attributes
+        if INELS_BUS_ATTR_DICT.get(ATTR_ID) not in raw_device:
+            switcher = {
+                ATTR_SHUTTER: partial(set_shutter_id, raw_device),
+                ATTR_THERM: partial(set_therm_id, raw_device)
+            }
+
+            fnc = switcher.get(raw_device[INELS_BUS_ATTR_DICT.get(ATTR_TYPE)])
+            # call selected function to set the identifier
+            raw_device = fnc()
+
+        return raw_device
 
     def __readDeviceData(self, device_names):
         """Reading devices data from proxy."""

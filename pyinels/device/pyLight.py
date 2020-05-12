@@ -1,7 +1,9 @@
 """Inels light class for iNels BUS."""
 
 from pyinels.const import (
-    RANGE_BRIGHTNESS
+    RANGE_BRIGHTNESS,
+    ATTR_SWITCH_ON,
+    ATTR_SWITCH_OFF
 )
 
 MIN_RANGE = RANGE_BRIGHTNESS[0]
@@ -21,7 +23,10 @@ class pyLight:
         if self.__device.value is None:
             self.__device.observe()
 
-        return True if self.__device.value > 0 else False
+        val = str(self.__device.value)
+        attr = ATTR_SWITCH_ON
+
+        return (True if val == attr else False)
 
     @property
     def name(self):
@@ -49,7 +54,7 @@ class pyLight:
 
     def turn_off(self):
         """Turn off the light."""
-        self.__device.set_value(0)
+        self.__device.set_value(ATTR_SWITCH_OFF)
 
     def turn_on(self):
         """Turn on the light."""
@@ -60,4 +65,4 @@ class pyLight:
                 MIN_RANGE if self.state is True else MAX_RANGE)
         else:
             # set device value to 0 when turn off and to 1 when turn on
-            self.__device.set_value(1)
+            self.__device.set_value(ATTR_SWITCH_ON)
