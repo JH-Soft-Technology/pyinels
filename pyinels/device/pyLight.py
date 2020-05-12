@@ -23,6 +23,9 @@ class pyLight:
         if self.__device.value is None:
             self.__device.observe()
 
+        if self.has_brightness:
+            return (True if self.__device.value > MIN_RANGE else False)
+
         val = str(self.__device.value)
         attr = ATTR_SWITCH_ON
 

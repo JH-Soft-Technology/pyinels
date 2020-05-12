@@ -36,44 +36,61 @@ class PyLightTest(TestCase):
             p.start()
 
         self.api = Api(TEST_HOST, TEST_PORT, TEST_VERSION)
-        lights = [device for device in self.api.getRoomDevices(
+        self.lights = [device for device in self.api.getRoomDevices(
             'garage') if device.type == ATTR_LIGHT]
 
-        self.light = pyLight(lights[0])
+        self.light = pyLight(self.lights[0])
 
     def tearDown(self):
         """Destroy all instances and mocks."""
         self.api = None
         self.light = None
+        self.lights = []
         patch.stopall()
         self.patches = None
 
     def test_state(self):
         """Test the state of the pyLight."""
-        s = self.light
+        lg = self.light
         # the light at the beggining should be turned off
-        self.assertFalse(s.state)
+        self.assertFalse(lg.state)
 
     def test_unique_id_and_name_presented(self):
         """Test when the unique id is presented."""
-        s = self.light
+        lg = self.light
 
-        self.assertIsNotNone(s.unique_id)
-        self.assertIsNotNone(s.name)
+        self.assertIsNotNone(lg.unique_id)
+        self.assertIsNotNone(lg.name)
 
     def test_turn_on(self):
         """Test turn on the light."""
-        s = self.light
+        lg = self.light
 
-        self.assertFalse(s.state)
-        s.turn_on()
-        self.assertTrue(s.state)
+        self.assertFalse(lg.state)
+        lg.turn_on()
+        self.assertTrue(lg.state)
+
+        lg.turn_off()
+        self.assertFalse(lg.state)
 
     def test_turn_off(self):
         """Test turn off the light."""
-        s = self.light
-        s.turn_on()
-        self.assertTrue(s.state)
+        lg = self.light
+        lg.turn_on()
+        self.assertTrue(lg.state)
 
-        s.turn_off()
-        self.assertFalse(s.state)
+        lg.turn_off()
+        self.assertFalse(lg.state)
+
+    @patch(f'{TEST_API_CLASS_NAMESPACE}._Api__readDeviceData')
+    def test_turn_on_with_brightness_option(self, mock_room_devices):
+        """Test the light to turn on when the brightness exists."""
+        mock_room_devices.return_value = {'SV_Wall_Garage': 0.0}
+
+        lg = pyLight(self.lights[1])
+        self.assertTrue(lg.has_brightness,
+                        "The light does not have a brightness")
+        self.assertFalse(lg.state, "The light is not turned off")
+
+        lg.turn_on()
+        self.assertTrue(lg.state, "The light is not turned on")
