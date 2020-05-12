@@ -24,7 +24,11 @@ class PySwitchTest(TestCase):
         self.patches = [
             patch(f'{TEST_API_CLASS_NAMESPACE}.ping', return_value=True),
             patch(f'{TEST_API_CLASS_NAMESPACE}.getRoomDevicesRaw',
-                  return_value=TEST_RAW_DEVICES)
+                  return_value=TEST_RAW_DEVICES),
+            patch(f'{TEST_API_CLASS_NAMESPACE}._Api__readDeviceData',
+                  return_value={'ZA_01_GARAGE': 0}),
+            patch(f'{TEST_API_CLASS_NAMESPACE}._Api__writeValues',
+                  return_value=None)
         ]
 
         for p in self.patches:
@@ -34,27 +38,41 @@ class PySwitchTest(TestCase):
         switches = [device for device in self.api.getRoomDevices(
             'garage') if device.type == ATTR_SWITCH]
 
-        self.device = switches[0]
+        self.switch = pySwitch(switches[0])
 
     def tearDown(self):
         """Destroy all instances and mocks."""
         self.api = None
-        self.device = None
+        self.switch = None
         patch.stopall()
         self.patches = None
 
     def test_state(self):
         """Test the state of the pySwitch."""
-        with patch.object(self.api, '_Api__readDeviceData',
-                          return_value={'ZA_01_GARAGE': 0}):
-            p = pySwitch(self.device)
+        s = self.switch
+        # the switch at the beggining should be turned off
+        self.assertFalse(s.state)
 
-            # the switch at the beggining should be turned off
-            self.assertFalse(p.state)
+    def test_unique_id_and_name_presented(self):
+        """Test when the unique id is presented."""
+        s = self.switch
 
-            with patch.object(self.api, '_Api__writeValues',
-                              return_value=None):
-                # tur on the switch
-                p.turn_on()
+        self.assertIsNotNone(s.unique_id)
+        self.assertIsNotNone(s.name)
 
-                self.assertTrue(p.state)
+    def test_turn_on(self):
+        """Test turn on the switch."""
+        s = self.switch
+
+        self.assertFalse(s.state)
+        s.turn_on()
+        self.assertTrue(s.state)
+
+    def test_turn_off(self):
+        """Test turn off the switch."""
+        s = self.switch
+        s.turn_on()
+        self.assertTrue(s.state)
+
+        s.turn_off()
+        self.assertFalse(s.state)

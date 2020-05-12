@@ -17,6 +17,9 @@ ATTR_UP = "Up"
 # Internal device attributes
 ATTR_SWITCH = "switch"
 ATTR_LIGHT = "light"
+ATTR_SHUTTER = "shutter"
+ATTR_HEATING = "heating"
+ATTR_THERM = "therm"
 
 # Device types dictionary with all determined typs translated to better
 # understand
@@ -46,11 +49,11 @@ INELS_BUS_ATTR_DICT = {
 NAME = "pyinels"
 
 RANGE_BLIND = (0, 100)
-RANGE_BRIGHTNESS = (0.0, 255.0)
+RANGE_BRIGHTNESS = (0.0, 100.0)
 
 SUPPORT_BRIGHTNESS = 1
 SUPPORT_COLOR_TEMP = 4
 SUPPORT_HEX_COLOR = 8
 SUPPORT_RGB_COLOR = 2
 
-VERSION = "0.4.4"
+VERSION = "0.4.5"
