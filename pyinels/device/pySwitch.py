@@ -1,7 +1,8 @@
 """Inels switch class for iNels BUS."""
 
 from pyinels.const import (
-    ATTR_SWITCH_ON
+    ATTR_SWITCH_ON,
+    ATTR_SWITCH_OFF
 )
 
 
@@ -36,11 +37,11 @@ class pySwitch:
 
     def turn_off(self):
         """Turn the switch off."""
-        self.__device.set_value(0)
+        self.__device.set_value(ATTR_SWITCH_OFF)
 
     def turn_on(self):
         """Turn the switch on."""
-        self.__device.set_value(1)
+        self.__device.set_value(ATTR_SWITCH_ON)
 
     def __repr__(self):
         """Object representation."""
