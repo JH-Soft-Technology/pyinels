@@ -94,7 +94,7 @@ class Api:
                 is_in = False
                 # check when duplicate devices occured
                 for device in devices:
-                    if device.id is room_dev.id:
+                    if device.id == room_dev.id:
                         is_in = True
                         break
                 # not presented in the list, then append

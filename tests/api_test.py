@@ -134,4 +134,4 @@ class ApiTest(TestCase):
                                   return_value=obj_list):
                     devices = self.api.getAllDevices()
 
-                    self.assertEqual(len(devices), 50)
+                    self.assertEqual(len(devices), 48)
