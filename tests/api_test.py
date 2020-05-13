@@ -128,6 +128,4 @@ class ApiTest(TestCase):
         with patch.object(self.proxy, 'ping', return_value=True):
             obj_list = self.proxy.getRoomDevices('room')
 
-            # total items are 27 duplicated are 5 then the
-            # result should be 22
-            self.assertEqual(len(obj_list), 22)
+            self.assertEqual(len(obj_list), 48)

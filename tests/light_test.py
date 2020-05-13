@@ -10,11 +10,18 @@ from tests.const_test import (
     TEST_VERSION
 )
 
+from pyinels.const import (
+    RANGE_BRIGHTNESS
+)
+
 from pyinels.api import Api
 from pyinels.device.pyLight import pyLight
 
 from unittest.mock import patch
 from unittest import TestCase
+
+MIN_RANGE = RANGE_BRIGHTNESS[0]
+MAX_RANGE = RANGE_BRIGHTNESS[1]
 
 
 class PyLightTest(TestCase):
@@ -85,12 +92,24 @@ class PyLightTest(TestCase):
     @patch(f'{TEST_API_CLASS_NAMESPACE}._Api__readDeviceData')
     def test_turn_on_with_brightness_option(self, mock_room_devices):
         """Test the light to turn on when the brightness exists."""
-        mock_room_devices.return_value = {'SV_Wall_Garage': 0.0}
+        mock_room_devices.return_value = {'SV_Wall_Garage': MIN_RANGE}
 
         lg = pyLight(self.lights[1])
-        self.assertTrue(lg.has_brightness,
-                        "The light does not have a brightness")
-        self.assertFalse(lg.state, "The light is not turned off")
+        self.assertTrue(lg.has_brightness)
+        self.assertFalse(lg.state)
 
         lg.turn_on()
-        self.assertTrue(lg.state, "The light is not turned on")
+        self.assertTrue(lg.state)
+
+    @patch(f'{TEST_API_CLASS_NAMESPACE}._Api__readDeviceData')
+    def test_turn_off_with_brightness_option(self, mock_room_devices):
+        """Test the light to turn off when the brightness exsists."""
+        mock_room_devices.return_value = {'SV_Wall_Garage': MAX_RANGE}
+
+        lg = pyLight(self.lights[1])
+        self.assertTrue(lg.has_brightness)
+        self.assertTrue(lg.state)
+
+        lg.turn_off()
+        self.assertTrue(lg.has_brightness)
+        self.assertFalse(lg.state)
