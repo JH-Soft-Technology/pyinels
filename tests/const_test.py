@@ -99,7 +99,43 @@ name="Obyvak" read_only="no" therm="O" column="0" stateth="O" rele="D" row="4"
 name="Pokoj" read_only="no" therm="P" column="1" stateth="P" rele="D" row="4"
 name="Koupel" read_only="no" therm="K" column="2" stateth="K" rele="D" row="4"
 name="Zadveri" read_only="no" therm="V" column="3" stateth="V" rele="D" row="4"
+lights:
+name="Fasada" column="0" inels="SV_6_Terasa_Fasada" read_only="no" row="0"
+name="Garaz zadni vch" column="1" inels="SV_G_Za_V" read_only="no" row="0"
+name="Terasa" column="2" inels="SV_Terasa_Zem" read_only="no" row="0"
+name="Vchod a garaz" column="3" inels="SV_10_Ven_Garaz" read_only="no" row="0"
+shutters:
+name="Markyza" column="0" down="Marky_d" read_only="no" up="Marky_n" row="1"
+lights:
+name="Loznice" column="0" inels="SV_19_Loznice" read_only="no" row="0"
+name="Satna" column="1" inels="SV_20_Loznice_satna" read_only="no" row="0"
+name="Zachod" column="0" inels="SV_21_WC_patro" read_only="no" row="1"
+name="Chodba" column="1" inels="SV_18_Chodba_2.NP" read_only="no" row="1"
+name="Schodiste" column="2" inels="SV_15_Schodiste" read_only="no" row="1"
+name="Puda" column="3" inels="SV_Puda" read_only="no" row="1"
+name="Koupelna" column="0" inels="SV_22_Koupelna_nahore" read_only="no" row="2"
+name="Umyvadlo" column="1" inels="SV_22_Umyvadlo" read_only="no" row="2"
+name="Pokoj V." column="0" inels="SV_17_Pokoj_levy" read_only="no" row="3"
+on_off:
+name="Zas loznice" column="3" inels="ZAS_13A_Loznice" read_only="no" row="0"
+name="Zas pok V." column="2" inels="ZAS_12B_Pokoj_levy" read_only="no" row="3"
+name="Zas pok Z." column="1" inels="ZAS_12A_Pokoj_pravy" read_only="no" row="4"
+heat-control:
+name="Lozni" read_only="no" therm="Lo" column="2" stateth="LH" rele="D" row="0"
+name="Koupa" read_only="no" therm="Ko" column="2" stateth="KH" rele="D" row="2"
+name="Po V." read_only="no" therm="Pl" column="1" stateth="PT" rele="D" row="3"
+name="Po Z." read_only="no" therm="Pp" column="0" stateth="PH" rele="D" row="4"
+lights:
+name="Hl. světlo" column="0" inels="SV_12_Garaz" read_only="no" row="0"
+name="Půda" column="1" inels="SV_Puda_Garaz" read_only="no" row="0"
+garage:
+name="Vrata" column="0" inels="Vrata_Garaz" read_only="no" row="1"
+on_off:
+name="VZT ZAP/VYP" column="0" inels="VZT_Zapnout" read_only="no" row="0"
+name="VZT ST 2" column="1" inels="VZT_rychlost_2" read_only="no" row="0"
+name="VZT ST 3" column="2" inels="VZT_Rychlost_3" read_only="no" row="0"
 """
+
 
 TEST_ROOMS = ['Basement', 'First floor', 'Front yard',
               'Back yard', 'Attic', 'Garrage']
