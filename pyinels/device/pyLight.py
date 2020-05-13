@@ -57,6 +57,10 @@ class pyLight:
 
     def turn_off(self):
         """Turn off the light."""
+        if self.has_brightness is True:
+            self.__device.set_value(MIN_RANGE)
+            return
+
         self.__device.set_value(ATTR_SWITCH_OFF)
 
     def turn_on(self):
