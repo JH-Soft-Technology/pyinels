@@ -83,11 +83,23 @@ class Api:
 
     def getAllDevices(self):
         """Get all devices from all rooms."""
-        rooms = self.getRooms()
-
         devices = []
+
+        rooms = self.getRooms()
+        # go trough all rooms
         for room in rooms:
-            devices += self.getRoomDevices(room)
+            room_devices = self.getRoomDevices(room)
+            # go trough all devices in room
+            for room_dev in room_devices:
+                is_in = False
+                # check when duplicate devices occured
+                for device in devices:
+                    if device.id is room_dev.id:
+                        is_in = True
+                        break
+                # not presented in the list, then append
+                if is_in is False:
+                    devices.append(room_dev)
 
         return devices
 
@@ -141,26 +153,13 @@ class Api:
                     obj[INELS_BUS_ATTR_DICT
                         .get(ATTR_TYPE)] = DEVICE_TYPE_DICT.get(d_type)
 
-                    is_in = False
+                    obj = self.__recognizeAndSetUniqueIdToDevice(obj)
 
-                    # when not unieque id is defined, then we need own
-                    if INELS_BUS_ATTR_DICT.get(ATTR_ID) not in obj:
-                        self.__recognizeDevice(obj)
-
-                    # check when the item with this ID is already inside
-                    # of the collection
-                    for x in devices:
-                        if INELS_BUS_ATTR_DICT.get(ATTR_ID) in obj:
-                            if x.id == obj[INELS_BUS_ATTR_DICT.get(ATTR_ID)]:
-                                is_in = True
-                                break
-
-                    if is_in is False:
-                        devices.append(Device(obj, self))
+                    devices.append(Device(obj, self))
 
         return devices
 
-    def __recognizeDevice(self, raw_device):
+    def __recognizeAndSetUniqueIdToDevice(self, raw_device):
         """Some of the devices does not have unique id
         presented in inels attribute. We need do create
         one from other unique attributes."""
