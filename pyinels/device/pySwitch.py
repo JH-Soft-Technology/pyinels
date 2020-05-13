@@ -16,14 +16,8 @@ class pySwitch:
     @property
     def state(self):
         """Return the state of the switch."""
-        if (self.__device.value is None):
-            self.__device.observe()
-
-        val = str(self.__device.value)
-        attr = ATTR_SWITCH_ON
-
-        # it is expression of ternary operator
-        return (True if val == attr else False)
+        return (True if str(self.__device.observe())
+                == ATTR_SWITCH_ON else False)
 
     @property
     def name(self):
