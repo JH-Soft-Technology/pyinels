@@ -20,8 +20,7 @@ class pyLight:
     @property
     def state(self):
         """State of the light."""
-        if self.__device.value is None:
-            self.__device.observe()
+        self.__device.observe()
 
         if self.has_brightness:
             return (True if self.__device.value > MIN_RANGE else False)

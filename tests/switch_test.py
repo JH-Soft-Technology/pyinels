@@ -15,6 +15,9 @@ from pyinels.device.pySwitch import pySwitch
 from unittest.mock import patch
 from unittest import TestCase
 
+GARAGE_RETURN_OFF = {'ZA_01_GARAGE': 0}
+GARAGE_RETURN_ON = {'ZA_01_GARAGE': 1}
+
 
 class PySwitchTest(TestCase):
     """Class to test iNels switch library."""
@@ -26,7 +29,7 @@ class PySwitchTest(TestCase):
             patch(f'{TEST_API_CLASS_NAMESPACE}.getRoomDevicesRaw',
                   return_value=TEST_RAW_DEVICES),
             patch(f'{TEST_API_CLASS_NAMESPACE}._Api__readDeviceData',
-                  return_value={'ZA_01_GARAGE': 0}),
+                  return_value=GARAGE_RETURN_OFF),
             patch(f'{TEST_API_CLASS_NAMESPACE}._Api__writeValues',
                   return_value=None)
         ]
@@ -63,16 +66,21 @@ class PySwitchTest(TestCase):
     def test_turn_on(self):
         """Test turn on the switch."""
         s = self.switch
-
         self.assertFalse(s.state)
-        s.turn_on()
-        self.assertTrue(s.state)
+
+        with patch.object(self.api, '_Api__readDeviceData',
+                          return_value=GARAGE_RETURN_ON):
+            s.turn_on()
+            self.assertTrue(s.state)
 
     def test_turn_off(self):
         """Test turn off the switch."""
         s = self.switch
-        s.turn_on()
-        self.assertTrue(s.state)
+
+        with patch.object(self.api, '_Api__readDeviceData',
+                          return_value=GARAGE_RETURN_ON):
+            s.turn_on()
+            self.assertTrue(s.state)
 
         s.turn_off()
         self.assertFalse(s.state)
