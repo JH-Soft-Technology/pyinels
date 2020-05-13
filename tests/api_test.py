@@ -28,7 +28,7 @@ class ApiTest(TestCase):
                   return_value={TEST_DATA_SWITCH['id']: 1}),
         ]
 
-        self.proxy = Api(TEST_HOST, TEST_PORT, TEST_VERSION)
+        self.api = Api(TEST_HOST, TEST_PORT, TEST_VERSION)
 
         # patching ping method in IneslBus3. It will be executed every test
         for p in self.patches:
@@ -36,7 +36,7 @@ class ApiTest(TestCase):
 
     def tearDown(self):
         """Destroy all instances and mocks."""
-        self.proxy = None
+        self.api = None
         patch.stopall()
         self.patches = None
 
@@ -53,12 +53,12 @@ class ApiTest(TestCase):
 
     @patch('xmlrpc.client.ServerProxy')
     def test_connection_failed(self, mock_server):
-        """Test proxy connection."""
+        """Test api connection."""
         mock_server.return_value = Mock()
         mock_server.side_effect = ApiException(
             'common_exception', 'Exception occur')
 
-        ret = self.proxy.ping()
+        ret = self.api.ping()
         self.assertEqual(True, ret)
         self.assertEqual(mock_server.call_count, 0)
 
@@ -66,7 +66,7 @@ class ApiTest(TestCase):
     def test_ping_failed(self, mock_method):
         """Test ping method."""
         mock_method.return_value = False
-        ret = self.proxy.ping()
+        ret = self.api.ping()
 
         self.assertEqual(mock_method.call_count, 1)
         self.assertFalse(ret)
@@ -74,19 +74,20 @@ class ApiTest(TestCase):
     @patch(f'{TEST_API_CLASS_NAMESPACE}.getPlcIp')
     def test_getPlcIp_success(self, mock_method):
         """Test Ip address of the PLC."""
-        mock_method.return_value = "192.168.2.10"
+        RET_VAL = "192.168.2.10"
 
-        ret = self.proxy.getPlcIp()
+        mock_method.return_value = RET_VAL
+        ret = self.api.getPlcIp()
 
         self.assertEqual(mock_method.call_count, 1)
-        self.assertEqual(ret, "192.168.2.10")
+        self.assertEqual(ret, RET_VAL)
 
     @patch(f'{TEST_API_CLASS_NAMESPACE}.getRooms')
     def test_getRoomsRaw_list(self, mock_method):
         """Test list of rooms defined on Connection server."""
         mock_method.return_value = TEST_ROOMS
 
-        ret = self.proxy.getRooms()
+        ret = self.api.getRooms()
 
         self.assertEqual(mock_method.call_count, 1)
         self.assertEqual(len(ret), 6)
@@ -96,19 +97,19 @@ class ApiTest(TestCase):
     def test_getRoomDevices_list(self, mock_method):
         """Test list of all devices in room."""
         mock_method.return_value = TEST_RAW_DEVICES
-        raw = self.proxy.getRoomDevicesRaw('room')
+        raw = self.api.getRoomDevicesRaw('room')
 
         self.assertEqual(mock_method.call_count, 1)
         self.assertEqual(len(raw), len(mock_method.return_value))
 
         # this is the way how to mock private method
         with patch.object(
-            self.proxy,
+            self.api,
             '_Api__readDeviceData',
             return_value={'Doors_Garage': 0}
         ):
-            with patch.object(self.proxy, 'ping', return_value=True):
-                obj_list = self.proxy.getRoomDevices('room')
+            with patch.object(self.api, 'ping', return_value=True):
+                obj_list = self.api.getRoomDevices('room')
 
                 device = obj_list[0]
 
@@ -117,7 +118,7 @@ class ApiTest(TestCase):
                 self.assertEqual(device.title, 'Doors')
 
                 patch.stopall()
-                device_value = self.proxy.read([device.id])
+                device_value = self.api.read([device.id])
                 self.assertEqual(device_value, {'Doors_Garage': 0})
 
     @patch(f'{TEST_API_CLASS_NAMESPACE}.getRoomDevicesRaw')
@@ -125,7 +126,12 @@ class ApiTest(TestCase):
         """Test duplicit entries inside of device list."""
         mock_method.return_value = TEST_RAW_DUPLICIT_DEVICES
 
-        with patch.object(self.proxy, 'ping', return_value=True):
-            obj_list = self.proxy.getRoomDevices('room')
+        with patch.object(self.api, 'ping', return_value=True):
+            obj_list = self.api.getRoomDevices('room')
 
-            self.assertEqual(len(obj_list), 48)
+            with patch.object(self.api, "getRooms", return_value=["room"]):
+                with patch.object(self.api, "getRoomDevices",
+                                  return_value=obj_list):
+                    devices = self.api.getAllDevices()
+
+                    self.assertEqual(len(devices), 50)
