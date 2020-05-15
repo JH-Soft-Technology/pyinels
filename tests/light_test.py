@@ -23,12 +23,13 @@ from unittest import TestCase
 MIN_RANGE = RANGE_BRIGHTNESS[0]
 MAX_RANGE = RANGE_BRIGHTNESS[1]
 
-LIGHT_NAME = 'SV_12_Garage'
+LIGHT_ID = 'SV_12_Garage'
+LIGHT_NAME = 'Main light'
 
-GARAGE_RETURN_OFF = {LIGHT_NAME: 0}
-GARAGE_RETURN_ON = {LIGHT_NAME: 1}
-GARAGE_RETURN_MIN_RANGE = {LIGHT_NAME: MIN_RANGE}
-GARAGE_RETURN_MAX_RANGE = {LIGHT_NAME: MAX_RANGE}
+GARAGE_RETURN_OFF = {LIGHT_ID: 0}
+GARAGE_RETURN_ON = {LIGHT_ID: 1}
+GARAGE_RETURN_MIN_RANGE = {LIGHT_ID: MIN_RANGE}
+GARAGE_RETURN_MAX_RANGE = {LIGHT_ID: MAX_RANGE}
 
 API_READ_DATA = "_Api__readDeviceData"
 
@@ -64,6 +65,16 @@ class PyLightTest(TestCase):
         self.lights = []
         patch.stopall()
         self.patches = None
+
+    def test_title_and_id(self):
+        """Test the name of the entity."""
+        lg = self.light
+
+        self.assertIsNotNone(lg.name)
+        self.assertEqual(lg.name, LIGHT_NAME)
+
+        self.assertIsNotNone(lg.unique_id)
+        self.assertEqual(lg.unique_id, LIGHT_ID)
 
     def test_state(self):
         """Test the state of the pyLight."""
@@ -109,9 +120,9 @@ class PyLightTest(TestCase):
         """Test the light to turn on when the brightness exists."""
         mock_room_devices.return_value = GARAGE_RETURN_MIN_RANGE
 
-        lg = self.light
-        self.assertTrue(lg.has_brightness)
+        lg = pyLight(self.lights[0])
         self.assertFalse(lg.state)
+        self.assertTrue(lg.has_brightness)
 
         with patch.object(self.api, API_READ_DATA,
                           return_value=GARAGE_RETURN_MAX_RANGE):
@@ -123,7 +134,7 @@ class PyLightTest(TestCase):
         """Test the light to turn off when the brightness exsists."""
         mock_room_devices.return_value = GARAGE_RETURN_MAX_RANGE
 
-        lg = self.light
+        lg = pyLight(self.lights[0])
 
         self.assertTrue(lg.has_brightness)
         self.assertTrue(lg.state)
