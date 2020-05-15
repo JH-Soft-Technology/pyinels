@@ -12,6 +12,7 @@ class pySwitch:
     def __init__(self, device):
         """Initialize of object InelsSwitch."""
         self.__device = device
+        self.__device.observe()
 
     @property
     def state(self):
