@@ -133,17 +133,9 @@ class ApiResource:
 
     def set_value(self, value):
         """Set value to the device."""
-
-        # initialize __value attribute
-        if hasattr(self, '_ApiResource__value') is False:
-            self.__value = 0
-
-        curr_int = isinstance(self.__value, int)
-        new_int = isinstance(value, int)
-
-        if (self.__value != value or curr_int is not new_int):
-            self.__value = value
+        if isinstance(value, int) or isinstance(value, float):
             self.__api.write(self, value)
+            self.__value = value
 
     @property
     def is_available(self):
