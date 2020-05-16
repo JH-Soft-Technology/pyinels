@@ -50,7 +50,7 @@ class pyLight:
     def set_brightness(self, value):
         """Set brightness of the light."""
         if (self.has_brightness
-                and (value > MIN_RANGE and value <= MAX_RANGE)):
+                and (value >= MIN_RANGE and value <= MAX_RANGE)):
             self.__device.set_value(value)
 
     def brightness(self):
