@@ -101,33 +101,21 @@ class ApiResource:
         """Initializer of the Api resource."""
         self.__json = json
         self.__api = api
+        self.__value = None
 
-    def observe(self, options=None):
+    def observe(self):
         """Read the current value of the device."""
         try:
-            if options:
-                if not isinstance(options, Observe):
-                    raise ApiClassTypeException(
-                        '500', f"""Device.observe options
-                        param has bad type. {type(options)}.
-                        Should by Observe.""")
 
             raw = self.__api.read([self.id])
             self.__value = raw[self.id]
 
-            if options:
-                options.callback(self)
-
             return self.__value
         except ApiClassTypeException as ex:
-            raise ex
-        except Exception:
-            if options:
-                options.err_callback()
-            # this is the situation when the proxy is
-            # probably not available, then we are going to
-            # se the value to None
             self.__value = None
+            raise ex
+        except Exception as ex:
+            raise ex
 
         return None
 
@@ -141,12 +129,13 @@ class ApiResource:
     def is_available(self):
         """Device availability property."""
         # first test when device has any value
-        if hasattr(self, '_ApiResource__value'):
+        if (hasattr(self, '_ApiResource__value')
+                and self._ApiResource__value is not None):
             return True
         else:
             # if not then try to observer
             self.observe()
-        # when nothing change then device is not available
+        # when the result is None then the device is not available
         return False if self.__value is None else True
 
 

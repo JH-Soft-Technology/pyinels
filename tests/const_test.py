@@ -1,4 +1,8 @@
 """Const of iNels BUS tests."""
+
+TEST_API_READ_DATA = "_Api__readDeviceData"
+TEST_API_ROOM_DEVICES = "getRoomDevicesRaw"
+
 TEST_API_NAMESPACE = "pyinels.api"
 TEST_API_CLASS_NAMESPACE = "pyinels.api.Api"
 
@@ -11,8 +15,8 @@ TEST_DATA_THERM = {
 }
 
 TEST_DATA_LIGHT = {
-    'title': 'Kitchen main light',
-    'id': 'KITCHEN_MAIN_LIGHT',
+    'title': 'Main light',
+    'id': 'SV_12_Garage',
     'read_only': 'no'
 }
 
@@ -57,13 +61,19 @@ TEST_RESOURCE_SWITCH = {
     'type': 'switch'
 }
 
-TEST_RAW_DEVICES = """garage:
-name="Doors" column="0" inels="Doors_Garage" read_only="no" row="1"
+TEST_RAW_LIGHT = """
 lights:
 name="Main light" column="0" inels="SV_12_Garage" read_only="no" row="0"
-name="Wall light" column="1" inels="SV_Wall_Garage" read_only="no" row="0"
+"""
+
+TEST_RAW_SWITCH = """
 on_off:
-name="Main switch" column="2" inels="ZA_01_GARAGE" read_only="no" row="0"
+name="Zas loznice" column="3" inels="ZAS_13A_Loznice" read_only="no" row="0"
+"""
+
+TEST_RAW_GARAGE_DOOR = """
+garage:
+name="Vrata" column="0" inels="Vrata_Garaz" read_only="no" row="1"
 """
 
 TEST_RAW_DUPLICIT_DEVICES = """on_off:

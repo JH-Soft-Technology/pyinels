@@ -4,10 +4,12 @@ from pyinels.api import Api
 from pyinels.exception import ApiException
 from tests.const_test import (
     TEST_API_CLASS_NAMESPACE,
-    TEST_DATA_SWITCH,
+    TEST_API_NAMESPACE,
+    TEST_API_ROOM_DEVICES,
+    TEST_API_READ_DATA,
     TEST_HOST,
     TEST_PORT,
-    TEST_RAW_DEVICES,
+    TEST_RAW_LIGHT,
     TEST_RAW_DUPLICIT_DEVICES,
     TEST_ROOMS,
     TEST_VERSION
@@ -15,6 +17,12 @@ from tests.const_test import (
 
 from unittest.mock import patch, Mock
 from unittest import TestCase
+
+LIGHT_ID = 'SV_12_Garage'
+LIGHT_NAME = 'Main light'
+
+LIGHT_RETURN_OFF = {LIGHT_ID: 0}
+LIGHT_RETURN_ON = {LIGHT_ID: 1}
 
 
 class ApiTest(TestCase):
@@ -24,8 +32,6 @@ class ApiTest(TestCase):
         """Setup all necessary instances nad mocks."""
         self.patches = [
             patch(f'{TEST_API_CLASS_NAMESPACE}.ping', return_value=True),
-            patch(f'{TEST_API_CLASS_NAMESPACE}.read',
-                  return_value={TEST_DATA_SWITCH['id']: 1}),
         ]
 
         self.api = Api(TEST_HOST, TEST_PORT, TEST_VERSION)
@@ -93,10 +99,10 @@ class ApiTest(TestCase):
         self.assertEqual(len(ret), 6)
         self.assertEqual(ret[1], 'First floor')
 
-    @patch(f'{TEST_API_CLASS_NAMESPACE}.getRoomDevicesRaw')
+    @patch(f'{TEST_API_CLASS_NAMESPACE}.{TEST_API_ROOM_DEVICES}')
     def test_getRoomDevices_list(self, mock_method):
         """Test list of all devices in room."""
-        mock_method.return_value = TEST_RAW_DEVICES
+        mock_method.return_value = TEST_RAW_LIGHT
         raw = self.api.getRoomDevicesRaw('room')
 
         self.assertEqual(mock_method.call_count, 1)
@@ -105,8 +111,8 @@ class ApiTest(TestCase):
         # this is the way how to mock private method
         with patch.object(
             self.api,
-            '_Api__readDeviceData',
-            return_value={'Doors_Garage': 0}
+            TEST_API_READ_DATA,
+            return_value=LIGHT_RETURN_OFF
         ):
             with patch.object(self.api, 'ping', return_value=True):
                 obj_list = self.api.getRoomDevices('room')
@@ -114,24 +120,27 @@ class ApiTest(TestCase):
                 device = obj_list[0]
 
                 self.assertGreater(len(obj_list), 0)
-                self.assertEqual(device.id, 'Doors_Garage')
-                self.assertEqual(device.title, 'Doors')
+                self.assertEqual(device.id, LIGHT_ID)
+                self.assertEqual(device.title, LIGHT_NAME)
 
                 patch.stopall()
                 device_value = self.api.read([device.id])
-                self.assertEqual(device_value, {'Doors_Garage': 0})
+                self.assertEqual(device_value, LIGHT_RETURN_OFF)
 
-    @patch(f'{TEST_API_CLASS_NAMESPACE}.getRoomDevicesRaw')
-    def test_not_duplicit_entries(self, mock_method):
+    @patch(f'{TEST_API_NAMESPACE}.resources.ApiResource.observe')
+    def test_not_duplicit_entries(self, mock_method_observe):
         """Test duplicit entries inside of device list."""
-        mock_method.return_value = TEST_RAW_DUPLICIT_DEVICES
+        mock_method_observe.return_value = 0
 
         with patch.object(self.api, 'ping', return_value=True):
-            obj_list = self.api.getRoomDevices('room')
+            with patch.object(self.api, TEST_API_ROOM_DEVICES,
+                              return_value=TEST_RAW_DUPLICIT_DEVICES):
+                obj_list = self.api.getRoomDevices('room')
 
-            with patch.object(self.api, "getRooms", return_value=["room"]):
-                with patch.object(self.api, "getRoomDevices",
-                                  return_value=obj_list):
-                    devices = self.api.getAllDevices()
+                with patch.object(self.api, "getRooms", return_value=["room"]):
+                    with patch.object(self.api, "getRoomDevices",
+                                      return_value=obj_list):
+                        devices = self.api.getAllDevices()
 
-                    self.assertEqual(len(devices), 48)
+                        self.assertEqual(len(devices), 48)
+                        self.assertGreater(len(obj_list), len(devices))
