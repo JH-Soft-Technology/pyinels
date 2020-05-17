@@ -133,7 +133,8 @@ class ApiTest(TestCase):
         mock_method_observe.return_value = 0
 
         with patch.object(self.api, 'ping', return_value=True):
-            with patch.object(self.api, TEST_API_ROOM_DEVICES, return_value=TEST_RAW_DUPLICIT_DEVICES):
+            with patch.object(self.api, TEST_API_ROOM_DEVICES,
+                              return_value=TEST_RAW_DUPLICIT_DEVICES):
                 obj_list = self.api.getRoomDevices('room')
 
                 with patch.object(self.api, "getRooms", return_value=["room"]):

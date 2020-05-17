@@ -7,7 +7,6 @@ from pyinels.api.resources import ApiResource
 from tests.const_test import (
     TEST_API_CLASS_NAMESPACE,
     TEST_API_NAMESPACE,
-    TEST_API_READ_DATA,
     TEST_API_ROOM_DEVICES,
     TEST_API_READ_DATA,
     TEST_HOST,
