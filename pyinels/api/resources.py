@@ -146,7 +146,7 @@ class ApiResource:
         else:
             # if not then try to observer
             self.observe()
-        # when nothing change then device is not available
+        # when the result is None then the device is not available
         return False if self.__value is None else True
 
 

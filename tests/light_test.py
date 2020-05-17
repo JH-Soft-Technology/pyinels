@@ -1,7 +1,4 @@
 """Unit testing of iNels light library."""
-
-from pyinels.const import ATTR_LIGHT
-
 from tests.const_test import (
     TEST_API_CLASS_NAMESPACE,
     TEST_HOST,
@@ -11,7 +8,9 @@ from tests.const_test import (
 )
 
 from pyinels.const import (
-    RANGE_BRIGHTNESS
+    RANGE_BRIGHTNESS,
+    ATTR_LIGHT,
+    ATTR_LIGHT_DIMMABLE
 )
 
 from pyinels.api import Api

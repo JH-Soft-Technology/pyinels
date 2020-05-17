@@ -16,6 +16,7 @@ ATTR_UP = "Up"
 
 # Internal device attributes
 ATTR_SWITCH = "switch"
+ATTR_LIGHT_DIMMABLE = "light_dimmable"
 ATTR_LIGHT = "light"
 ATTR_SHUTTER = "shutter"
 ATTR_HEATING = "heating"
@@ -56,4 +57,4 @@ SUPPORT_RGB_COLOR = 2
 SUPPORT_COLOR_TEMP = 4
 SUPPORT_HEX_COLOR = 8
 
-VERSION = "0.4.13"
+VERSION = "0.4.14"
