@@ -12,12 +12,11 @@ class pySwitch:
     def __init__(self, device):
         """Initialize of object InelsSwitch."""
         self.__device = device
-        self.__device.observe()
 
     @property
     def state(self):
         """Return the state of the switch."""
-        return (True if str(self.__device.observe())
+        return (True if str(self.__device.value)
                 == ATTR_SWITCH_ON else False)
 
     @property
@@ -37,6 +36,10 @@ class pySwitch:
     def turn_on(self):
         """Turn the switch on."""
         self.__device.set_value(ATTR_SWITCH_ON)
+
+    def update(self):
+        """Update data on the switch."""
+        return self.__device.observe()
 
     def __repr__(self):
         """Object representation."""

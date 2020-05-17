@@ -7,12 +7,21 @@ from pyinels.api.resources import ApiResource
 from tests.const_test import (
     TEST_API_CLASS_NAMESPACE,
     TEST_API_NAMESPACE,
+    TEST_API_READ_DATA,
+    TEST_API_ROOM_DEVICES,
+    TEST_API_READ_DATA,
     TEST_HOST,
     TEST_PORT,
-    TEST_RAW_DEVICES,
+    TEST_RAW_GARAGE_DOOR,
     TEST_RESOURCE_SWITCH,
     TEST_VERSION
 )
+
+GARAGE_ID = "Vrata_Garaz"
+GARAGE_NAME = "Vrata"
+
+GARAGE_CLOSE = {GARAGE_ID: 0}
+GARAGE_OPEN = {GARAGE_ID: 1}
 
 
 class ResourceTest(TestCase):
@@ -23,8 +32,10 @@ class ResourceTest(TestCase):
 
         self.patches = [
             patch(f'{TEST_API_CLASS_NAMESPACE}.ping', return_value=True),
-            patch(f'{TEST_API_CLASS_NAMESPACE}.getRoomDevicesRaw',
-                  return_value=TEST_RAW_DEVICES)
+            patch(f'{TEST_API_CLASS_NAMESPACE}.{TEST_API_ROOM_DEVICES}',
+                  return_value=TEST_RAW_GARAGE_DOOR),
+            patch(f'{TEST_API_CLASS_NAMESPACE}.{TEST_API_READ_DATA}',
+                  return_value=GARAGE_CLOSE)
         ]
 
         for p in self.patches:
@@ -68,10 +79,10 @@ class ResourceTest(TestCase):
     def test_observe(self, mock_room_devices):
         """Test the observe method of the Api resources. It should touche
         the iNels BUS."""
-        mock_room_devices.return_value = {'Doors_Garage': 0}
+        mock_room_devices.return_value = GARAGE_CLOSE
 
-        self.assertEqual(len(self.res_list), 4)
-        self.assertEqual(self.garage_door.title, 'Doors')
+        self.assertEqual(len(self.res_list), 1)
+        self.assertEqual(self.garage_door.title, GARAGE_NAME)
 
         value = self.garage_door.observe()
 
@@ -99,12 +110,12 @@ class ResourceTest(TestCase):
             self.garage_door.set_value(25)
             self.assertEqual(self.garage_door.value, 25)
 
-    def test_is_available(self):
+    @patch(f'{TEST_API_CLASS_NAMESPACE}.{TEST_API_READ_DATA}')
+    def test_is_available(self, mock_garage_object):
+        mock_garage_object.return_value = None
+
         """Test when the resource object is available."""
         with patch.object(self.api, '_Api__writeValues', return_value=None):
-            # not set value of the ApiResource object then is not available
-            self.assertFalse(self.garage_door.is_available)
-
             # set the value of the ApiResource then it should be available
             self.garage_door.set_value(1)
             self.assertTrue(self.garage_door.is_available)

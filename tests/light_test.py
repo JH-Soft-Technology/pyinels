@@ -1,16 +1,17 @@
 """Unit testing of iNels light library."""
 from tests.const_test import (
     TEST_API_CLASS_NAMESPACE,
+    TEST_API_READ_DATA,
+    TEST_API_ROOM_DEVICES,
     TEST_HOST,
     TEST_PORT,
-    TEST_RAW_DEVICES,
+    TEST_RAW_LIGHT,
     TEST_VERSION
 )
 
 from pyinels.const import (
     RANGE_BRIGHTNESS,
-    ATTR_LIGHT,
-    ATTR_LIGHT_DIMMABLE
+    ATTR_LIGHT
 )
 
 from pyinels.api import Api
@@ -25,12 +26,11 @@ MAX_RANGE = RANGE_BRIGHTNESS[1]
 LIGHT_ID = 'SV_12_Garage'
 LIGHT_NAME = 'Main light'
 
-GARAGE_RETURN_OFF = {LIGHT_ID: 0}
-GARAGE_RETURN_ON = {LIGHT_ID: 1}
-GARAGE_RETURN_MIN_RANGE = {LIGHT_ID: MIN_RANGE}
-GARAGE_RETURN_MAX_RANGE = {LIGHT_ID: MAX_RANGE}
+LIGHT_RETURN_OFF = {LIGHT_ID: 0}
+LIGHT_RETURN_ON = {LIGHT_ID: 1}
 
-API_READ_DATA = "_Api__readDeviceData"
+LIGHT_RETURN_DIMMABLE_OFF = {LIGHT_ID: MIN_RANGE}
+LIGHT_RETURN_DIMMABLE_ON = {LIGHT_ID: MAX_RANGE}
 
 
 class PyLightTest(TestCase):
@@ -40,10 +40,10 @@ class PyLightTest(TestCase):
         """Setup all necesary instances and mocks."""
         self.patches = [
             patch(f'{TEST_API_CLASS_NAMESPACE}.ping', return_value=True),
-            patch(f'{TEST_API_CLASS_NAMESPACE}.getRoomDevicesRaw',
-                  return_value=TEST_RAW_DEVICES),
-            patch(f'{TEST_API_CLASS_NAMESPACE}.{API_READ_DATA}',
-                  return_value=GARAGE_RETURN_OFF),
+            patch(f'{TEST_API_CLASS_NAMESPACE}.{TEST_API_ROOM_DEVICES}',
+                  return_value=TEST_RAW_LIGHT),
+            patch(f'{TEST_API_CLASS_NAMESPACE}.{TEST_API_READ_DATA}',
+                  return_value=LIGHT_RETURN_OFF),
             patch(f'{TEST_API_CLASS_NAMESPACE}._Api__writeValues',
                   return_value=None)
         ]
@@ -52,16 +52,15 @@ class PyLightTest(TestCase):
             p.start()
 
         self.api = Api(TEST_HOST, TEST_PORT, TEST_VERSION)
-        self.lights = [device for device in self.api.getRoomDevices(
+        lights = [device for device in self.api.getRoomDevices(
             'garage') if device.type == ATTR_LIGHT]
 
-        self.light = pyLight(self.lights[0])
+        self.light = pyLight(lights[0])
 
     def tearDown(self):
         """Destroy all instances and mocks."""
         self.api = None
         self.light = None
-        self.lights = []
         patch.stopall()
         self.patches = None
 
@@ -78,6 +77,8 @@ class PyLightTest(TestCase):
     def test_state(self):
         """Test the state of the pyLight."""
         lg = self.light
+
+        lg.update()
         # the light at the beggining should be turned off
         self.assertFalse(lg.state)
 
@@ -92,54 +93,101 @@ class PyLightTest(TestCase):
         """Test turn on the light."""
         lg = self.light
 
+        lg.update()
         self.assertFalse(lg.state)
 
-        with patch.object(self.api, API_READ_DATA,
-                          return_value=GARAGE_RETURN_ON):
+        with patch.object(self.api, TEST_API_READ_DATA,
+                          return_value=LIGHT_RETURN_ON):
             lg.turn_on()
+
+            lg.update()
             self.assertTrue(lg.state)
 
         lg.turn_off()
+
+        lg.update()
         self.assertFalse(lg.state)
 
     def test_turn_off(self):
         """Test turn off the light."""
         lg = self.light
 
-        with patch.object(self.api, API_READ_DATA,
-                          return_value=GARAGE_RETURN_ON):
+        with patch.object(self.api, TEST_API_READ_DATA,
+                          return_value=LIGHT_RETURN_ON):
             lg.turn_on()
+
+            lg.update()
             self.assertTrue(lg.state)
 
         lg.turn_off()
+
+        lg.update()
         self.assertFalse(lg.state)
 
-    @patch(f'{TEST_API_CLASS_NAMESPACE}._Api__readDeviceData')
-    def test_turn_on_with_brightness_option(self, mock_room_devices):
-        """Test the light to turn on when the brightness exists."""
-        mock_room_devices.return_value = GARAGE_RETURN_MIN_RANGE
 
-        lg = pyLight(self.lights[0])
+class PyLightDimmableTest(TestCase):
+    """Class to test iNels light library."""
+
+    def setUp(self):
+        """Setup all necesary instances and mocks."""
+        self.patches = [
+            patch(f'{TEST_API_CLASS_NAMESPACE}.ping', return_value=True),
+            patch(f'{TEST_API_CLASS_NAMESPACE}.{TEST_API_ROOM_DEVICES}',
+                  return_value=TEST_RAW_LIGHT),
+            patch(f'{TEST_API_CLASS_NAMESPACE}.{TEST_API_READ_DATA}',
+                  return_value=LIGHT_RETURN_DIMMABLE_OFF),
+            patch(f'{TEST_API_CLASS_NAMESPACE}._Api__writeValues',
+                  return_value=None)
+        ]
+
+        for p in self.patches:
+            p.start()
+
+        self.api = Api(TEST_HOST, TEST_PORT, TEST_VERSION)
+        lights = [device for device in self.api.getRoomDevices(
+            'garage') if device.type == ATTR_LIGHT]
+
+        self.light = pyLight(lights[0])
+
+    def tearDown(self):
+        """Destroy all instances and mocks."""
+        self.api = None
+        self.light = None
+        patch.stopall()
+        self.patches = None
+
+    def test_turn_on_with_brightness_option(self):
+        """Test the light to turn on when the brightness exists."""
+
+        lg = self.light
+
+        lg.update()
         self.assertFalse(lg.state)
         self.assertTrue(lg.has_brightness)
 
-        with patch.object(self.api, API_READ_DATA,
-                          return_value=GARAGE_RETURN_MAX_RANGE):
+        with patch.object(self.api, TEST_API_READ_DATA,
+                          return_value=LIGHT_RETURN_DIMMABLE_ON):
             lg.turn_on()
+
+            lg.update()
             self.assertTrue(lg.state)
 
-    @patch(f'{TEST_API_CLASS_NAMESPACE}._Api__readDeviceData')
+    @patch(f'{TEST_API_CLASS_NAMESPACE}.{TEST_API_READ_DATA}')
     def test_turn_off_with_brightness_option(self, mock_room_devices):
         """Test the light to turn off when the brightness exsists."""
-        mock_room_devices.return_value = GARAGE_RETURN_MAX_RANGE
+        mock_room_devices.return_value = LIGHT_RETURN_DIMMABLE_ON
 
-        lg = pyLight(self.lights[0])
+        lg = self.light
 
         self.assertTrue(lg.has_brightness)
+
+        lg.update()
         self.assertTrue(lg.state)
 
-        with patch.object(self.api, API_READ_DATA,
-                          return_value=GARAGE_RETURN_MIN_RANGE):
+        with patch.object(self.api, TEST_API_READ_DATA,
+                          return_value=LIGHT_RETURN_DIMMABLE_OFF):
             lg.turn_off()
             self.assertTrue(lg.has_brightness)
+
+            lg.update()
             self.assertFalse(lg.state)

@@ -16,14 +16,11 @@ class pyLight:
     def __init__(self, device):
         """Initialize object."""
         self.__device = device
-        self.__device.observe()
         self.__has_brightness = isinstance(self.__device.value, float)
 
     @property
     def state(self):
         """State of the light."""
-        self.__device.observe()
-
         if self.has_brightness:
             return (True if self.__device.value > MIN_RANGE else False)
 
@@ -71,13 +68,14 @@ class pyLight:
     def turn_on(self):
         """Turn on the light."""
         if self.has_brightness is True:
-            # when the light has brightness then set max range for turn on
-            # and min range for turn off
-            self.__device.set_value(
-                MIN_RANGE if self.state is True else MAX_RANGE)
+            self.__device.set_value(MAX_RANGE)
         else:
             # set device value to 0 when turn off and to 1 when turn on
             self.__device.set_value(ATTR_SWITCH_ON)
+
+    def update(self):
+        """Update data on the device."""
+        return self.__device.observe()
 
     def __repr__(self):
         """Object representation."""
