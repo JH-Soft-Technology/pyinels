@@ -90,23 +90,23 @@ class ResourceTest(TestCase):
         self.assertIsNotNone(self.garage_door.value)
         self.assertEqual(self.garage_door.value, 0)
 
-    def test_set_value(self):
+    def test_write_value(self):
         """Test set value to the iNels BUS."""
         with patch.object(self.api, '_Api__writeValues', return_value=None):
             # set int
-            self.garage_door.set_value(1)
+            self.garage_door.write_value(1)
             self.assertEqual(self.garage_door.value, 1)
 
             # change int to another value
-            self.garage_door.set_value(0)
+            self.garage_door.write_value(0)
             self.assertEqual(self.garage_door.value, 0)
 
             # change to float with different value
-            self.garage_door.set_value(25.0)
+            self.garage_door.write_value(25.0)
             self.assertEqual(self.garage_door.value, 25.0)
 
             # change to int with same value
-            self.garage_door.set_value(25)
+            self.garage_door.write_value(25)
             self.assertEqual(self.garage_door.value, 25)
 
     @patch(f'{TEST_API_CLASS_NAMESPACE}.{TEST_API_READ_DATA}')
@@ -116,5 +116,5 @@ class ResourceTest(TestCase):
         """Test when the resource object is available."""
         with patch.object(self.api, '_Api__writeValues', return_value=None):
             # set the value of the ApiResource then it should be available
-            self.garage_door.set_value(1)
+            self.garage_door.write_value(1)
             self.assertTrue(self.garage_door.is_available)

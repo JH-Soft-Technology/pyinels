@@ -31,11 +31,11 @@ class pySwitch:
 
     def turn_off(self):
         """Turn the switch off."""
-        self.__device.set_value(ATTR_SWITCH_OFF)
+        self.__device.write_value(ATTR_SWITCH_OFF)
 
     def turn_on(self):
         """Turn the switch on."""
-        self.__device.set_value(ATTR_SWITCH_ON)
+        self.__device.write_value(ATTR_SWITCH_ON)
 
     def update(self):
         """Update data on the switch."""
