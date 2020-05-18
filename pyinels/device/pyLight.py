@@ -16,6 +16,7 @@ class pyLight:
     def __init__(self, device):
         """Initialize object."""
         self.__device = device
+        self.__device.observe()
         self.__has_brightness = isinstance(self.__device.value, float)
 
     @property
