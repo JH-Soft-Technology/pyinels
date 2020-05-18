@@ -48,7 +48,7 @@ class pyLight:
         """Set brightness of the light."""
         if (self.has_brightness
                 and (value >= MIN_RANGE and value <= MAX_RANGE)):
-            self.__device.set_value(value)
+            self.__device.write_value(value)
 
     def brightness(self):
         """Return the brightness value."""
@@ -60,18 +60,18 @@ class pyLight:
     def turn_off(self):
         """Turn off the light."""
         if self.has_brightness is True:
-            self.__device.set_value(MIN_RANGE)
+            self.__device.write_value(MIN_RANGE)
             return
 
-        self.__device.set_value(ATTR_SWITCH_OFF)
+        self.__device.write_value(ATTR_SWITCH_OFF)
 
     def turn_on(self):
         """Turn on the light."""
         if self.has_brightness is True:
-            self.__device.set_value(MAX_RANGE)
+            self.__device.write_value(MAX_RANGE)
         else:
             # set device value to 0 when turn off and to 1 when turn on
-            self.__device.set_value(ATTR_SWITCH_ON)
+            self.__device.write_value(ATTR_SWITCH_ON)
 
     def update(self):
         """Update data on the device."""
