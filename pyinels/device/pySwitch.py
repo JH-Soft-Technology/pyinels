@@ -17,7 +17,7 @@ class pySwitch:
     @property
     def state(self):
         """Return the state of the switch."""
-        return (True if str(self.__device.value)
+        return (True if self.__device.value
                 == ATTR_SWITCH_ON else False)
 
     @property
