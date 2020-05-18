@@ -8,7 +8,6 @@ class Device(ApiResource):
     def __init__(self, entity, api):
         """Initialize device class."""
         super().__init__(entity, api)
-        self.observe()
 
     def __repr__(self):
         """Object representation."""
