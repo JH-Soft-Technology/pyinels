@@ -97,6 +97,15 @@ class ApiResource:
 
         return None
 
+    def set_value(self, value):
+        self.__value = value
+
+    def write_value(self, value):
+        """Set value to the device."""
+        if isinstance(value, int) or isinstance(value, float):
+            self.__api.write(self, value)
+            self.set_value(value)
+
     def __init__(self, json, api):
         """Initializer of the Api resource."""
         self.__json = json
@@ -108,22 +117,16 @@ class ApiResource:
         try:
 
             raw = self.__api.read([self.id])
-            self.__value = raw[self.id]
+            self.set_value(raw[self.id])
 
-            return self.__value
+            return self.value
         except ApiClassTypeException as ex:
-            self.__value = None
+            self.set_value(None)
             raise ex
         except Exception as ex:
             raise ex
 
         return None
-
-    def set_value(self, value):
-        """Set value to the device."""
-        if isinstance(value, int) or isinstance(value, float):
-            self.__api.write(self, value)
-            self.__value = value
 
     @property
     def is_available(self):
@@ -136,23 +139,4 @@ class ApiResource:
             # if not then try to observer
             self.observe()
         # when the result is None then the device is not available
-        return False if self.__value is None else True
-
-
-class Observe:
-    """Class defined observe option object."""
-
-    @property
-    def callback(self):
-        """Callback property."""
-        return self.__callback
-
-    @property
-    def err(self):
-        """Error property."""
-        return self.__err_callback
-
-    def __init__(self, callback, err):
-        """Initialize Observe object."""
-        self.__callback = callback
-        self.__err_callback = err
+        return False if self.value is None else True
