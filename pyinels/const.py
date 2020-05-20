@@ -17,6 +17,7 @@ ATTR_UP = "Up"
 # Internal device attributes
 ATTR_SWITCH = "switch"
 ATTR_LIGHT = "light"
+ATTR_DOOR = "door"
 ATTR_SHUTTER = "shutter"
 ATTR_HEATING = "heating"
 ATTR_THERM = "therm"
@@ -30,7 +31,8 @@ DEVICE_TYPE_DICT = {
     "shutters": "shutter",
     "heat-control": "therm",
     "heating": "heating",
-    "garage": "garage"
+    "garage": "door",
+    "gate": "door"
 }
 
 INELS_BUS_ATTR_DICT = {
@@ -56,4 +58,4 @@ SUPPORT_RGB_COLOR = 2
 SUPPORT_COLOR_TEMP = 4
 SUPPORT_HEX_COLOR = 8
 
-VERSION = "0.5.3"
+VERSION = "0.5.4"

@@ -33,7 +33,7 @@ TEST_DATA_SHUTTER = {
     'read_only': 'no'
 }
 
-TEST_DATA_GARAGE = {
+TEST_DATA_DOOR = {
     'title': 'Garage door',
     'id': 'GARAGE_DOOR',
     'read_only': 'no'
