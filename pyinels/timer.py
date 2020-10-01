@@ -22,7 +22,7 @@ class Timer:
         """Start a new timer with direction"""
         if self._start_time is not None:
             # maybee only return void because its running
-            raise TimerError(f"Timer is running. Use .stop() to stop it")
+            raise TimerError("Timer is running. Use .stop() to stop it")
 
         self._start_time = time()
         self._tick = time() - self._start_time
@@ -36,7 +36,7 @@ class Timer:
     def stop(self):
         """Stop the timer, and report the elapsed time"""
         if self._start_time is None:
-            raise TimerError(f"Timer is not running. Use .start() to start it")
+            raise TimerError("Timer is not running. Use .start() to start it")
 
         self._tick = None
         self._start_time = None
