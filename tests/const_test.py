@@ -61,6 +61,26 @@ TEST_RESOURCE_SWITCH = {
     'type': 'switch'
 }
 
+TEST_SHUTTER_UP = "ZAL__ahor"
+TEST_SHUTTER_DOWN = "Z_Obk_do"
+TEST_SHUTTER_ID = f"{TEST_SHUTTER_UP}_{TEST_SHUTTER_DOWN}"
+TEST_SHUTTER_NAME = "Zal OB"
+
+TEST_RETURN_RESOURCE_SHUTTER = {
+    f'{TEST_SHUTTER_DOWN}': 0,
+    f'{TEST_SHUTTER_UP}': 0
+}
+
+TEST_RETURN_RESOURCE_SHUTTER_UP = {
+    f'{TEST_SHUTTER_DOWN}': 0,
+    f'{TEST_SHUTTER_UP}': 1
+}
+
+TEST_RETURN_RESOURCE_SHUTTER_DOWN = {
+    f'{TEST_SHUTTER_DOWN}': 1,
+    f'{TEST_SHUTTER_UP}': 0
+}
+
 TEST_RAW_LIGHT = """
 lights:
 name="Main light" column="0" inels="SV_12_Garage" read_only="no" row="0"
@@ -74,6 +94,11 @@ name="Zas loznice" column="3" inels="ZAS_13A_Loznice" read_only="no" row="0"
 TEST_RAW_GARAGE_DOOR = """
 garage:
 name="Vrata" column="0" inels="Vrata_Garaz" read_only="no" row="1"
+"""
+
+TEST_RAW_SHUTTER = """
+shutters:
+name="Zal OB" column="0" down="Z_Obk_do" read_only="no" up="ZAL__ahor" row="3"
 """
 
 TEST_RAW_DUPLICIT_DEVICES = """on_off:

@@ -83,12 +83,12 @@ class ResourceTest(TestCase):
         self.assertEqual(len(self.res_list), 1)
         self.assertEqual(self.garage_door.title, GARAGE_NAME)
 
-        value = self.garage_door.observe()
+        value = self.garage_door.observe()[self.garage_door.id]
 
         self.assertEqual(value, 0)
 
         self.assertIsNotNone(self.garage_door.value)
-        self.assertEqual(self.garage_door.value, 0)
+        self.assertEqual(self.garage_door.value[self.garage_door.id], 0)
 
     def test_write_value(self):
         """Test set value to the iNels BUS."""

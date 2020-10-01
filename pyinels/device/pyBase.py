@@ -17,7 +17,7 @@ class pyBase:
     @property
     def state(self):
         """Return the state of the switch."""
-        return (True if self._device.value
+        return (True if self._device.value[self._device.id]
                 == ATTR_SWITCH_ON else False)
 
     @property
