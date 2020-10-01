@@ -100,10 +100,11 @@ class ApiResource:
     def set_value(self, value):
         self.__value = value
 
-    def write_value(self, value):
+    def write_value(self, value, device_id=None):
         """Set value to the device."""
-        if isinstance(value, int) or isinstance(value, float):
-            self.__api.write(self, value)
+        if isinstance(value, int) or isinstance(value, float) \
+                or isinstance(value, object):
+            self.__api.write(self, value, device_id)
             self.set_value(value)
 
     def __init__(self, json, api):
@@ -115,9 +116,15 @@ class ApiResource:
     def observe(self):
         """Read the current value of the device."""
         try:
+            raw = None
 
-            raw = self.__api.read([self.id])
-            self.set_value(raw[self.id])
+            # shutter in action
+            if self.up is not None and self.down is not None:
+                raw = self.__api.read([self.up, self.down])
+            else:
+                raw = self.__api.read([self.id])
+
+            self.set_value(raw)
 
             return self.value
         except ApiClassTypeException as ex:
@@ -139,4 +146,4 @@ class ApiResource:
             # if not then try to observer
             self.observe()
         # when the result is None then the device is not available
-        return False if self.value is None else True
+        return False if self.value[self.id] is None else True

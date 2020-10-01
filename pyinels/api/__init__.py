@@ -110,14 +110,17 @@ class Api:
                 'readDeviceData', f'{device_ids} is not a list!')
         return self.__readDeviceData(device_ids)
 
-    def write(self, device, value):
+    def write(self, device, value, device_id=None):
         """Write data to multiple devices."""
         if not hasattr(device, 'id'):
             raise ApiDataTypeException(
                 'readDeviceData', f'{device} has no id')
         try:
             obj = {}
-            obj[device.id] = value
+            # when device_id set then write value by
+            # device id and not by device.id
+            # this is because sutters or heating
+            obj[device.id if device_id is None else device_id] = value
 
             self.__writeValues(obj)
         except Exception as err:
@@ -133,9 +136,9 @@ class Api:
         devices = []
 
         raw_list = self.getRoomDevicesRaw(room_name)
-        list = raw_list.split('\n')
+        devices_list = raw_list.split('\n')
 
-        for item in list:
+        for item in devices_list:
             start = len(item) - 1
             end = len(item)
             if start > 0:
@@ -166,18 +169,18 @@ class Api:
 
         def set_shutter_id(dev):
             """Set the id to the shutter."""
-            raw_device[INELS_BUS_ATTR_DICT.get(
-                ATTR_ID)] = raw_device[INELS_BUS_ATTR_DICT.get(ATTR_UP)] + \
-                "_" + raw_device[INELS_BUS_ATTR_DICT.get(ATTR_DOWN)]
+            dev[INELS_BUS_ATTR_DICT.get(
+                ATTR_ID)] = dev[INELS_BUS_ATTR_DICT.get(ATTR_UP)] + \
+                "_" + dev[INELS_BUS_ATTR_DICT.get(ATTR_DOWN)]
 
-            return raw_device
+            return dev
 
         def set_therm_id(dev):
             """Set the id to the therms."""
-            raw_device[INELS_BUS_ATTR_DICT.get(
-                ATTR_ID)] = raw_device[INELS_BUS_ATTR_DICT.get(ATTR_TEMP)]
+            dev[INELS_BUS_ATTR_DICT.get(
+                ATTR_ID)] = dev[INELS_BUS_ATTR_DICT.get(ATTR_TEMP)]
 
-            return raw_device
+            return dev
 
         # use a switch to create identifier inside of the raw data
         # from usefull attributes
