@@ -116,13 +116,7 @@ class Api:
             raise ApiDataTypeException(
                 'readDeviceData', f'{device} has no id')
         try:
-            obj = {}
-            # when device_id set then write value by
-            # device id and not by device.id
-            # this is because sutters or heating
-            obj[device.id if device_id is None else device_id] = value
-
-            self.__writeValues(obj)
+            self.__writeValues(value)
         except Exception as err:
             raise ApiException("write_proxy", err)
 
