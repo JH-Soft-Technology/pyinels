@@ -38,20 +38,17 @@ class pyShutter(pyBase):
         down_on = up_device == ATTR_SWITCH_OFF \
             and down_device == ATTR_SWITCH_ON
 
-        state = STATE_CLOSED
+        state = (STATE_OPENING
+                 if up_on and not down_on
+                 else STATE_CLOSING
+                 if not up_on and down_on
+                 else None)
 
-        #  check if the shutter should
-        if self.should_stop is True and self.__timmer.tick is not None:
-            state = self.stop()
-
-        if up_on and self.__timmer.tick is not None:
-            state = STATE_OPENING
-        elif up_on and self.__timmer.tick is None:
-            state = STATE_OPEN
-        elif down_on and self.__timmer.tick is not None:
-            state = STATE_CLOSING
-        elif down_on and self.__timmer.tick is None:
-            state = STATE_CLOSED
+        if self.should_stop is True:
+            if up_on and not down_on:
+                state = STATE_OPEN
+            elif not up_on and down_on:
+                state = STATE_CLOSED
 
         return state
 
@@ -61,9 +58,22 @@ class pyShutter(pyBase):
         if self.__timeToStop == 0:
             return True
 
-        self.__timmer.update_tick()
+        # stop the shutter
+        result = True
 
-        result = self.__timeToStop - self.__timmer.tick <= 0
+        if self.__timmer._start_time is not None:
+            # timer is still working
+            self.__timmer.update_tick()
+
+            result = self.__timeToStop - self.__timmer.tick <= 0
+
+            # when the timer reach of counting, then stop it
+            # otherwise return false
+            if result is True:
+                self.__timmer.stop()
+            else:
+                result = False
+
         return result
 
     @property
