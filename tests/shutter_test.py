@@ -70,13 +70,14 @@ class PyShutterTest(TestCase):
         patch.stopall()
         self.patches = None
 
-    def test_closed_state(self):
+    def test_state_after_initialization(self):
         """Test the state of the pyShutter."""
         shutt = self.shutter
 
         shutt.update()
-        # the shutter at the beggining should be turned off
-        self.assertIs(shutt.state, STATE_CLOSED)
+        # the shutter at the beggining should be none. There will be
+        # calibration
+        self.assertIs(shutt.state, None)
 
     def test_unique_id_and_name_presented(self):
         """Test when the unique id is presented."""
