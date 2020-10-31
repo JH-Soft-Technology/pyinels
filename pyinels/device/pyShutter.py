@@ -42,7 +42,7 @@ class pyShutter(pyBase):
                  if up_on and not down_on
                  else STATE_CLOSING
                  if not up_on and down_on
-                 else None)
+                 else STATE_CLOSED)
 
         if self.should_stop is True:
             if up_on and not down_on:
