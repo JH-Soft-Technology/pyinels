@@ -77,7 +77,7 @@ class PyShutterTest(TestCase):
         shutt.update()
         # the shutter at the beggining should be none. There will be
         # calibration
-        self.assertIs(shutt.state, None)
+        self.assertIs(shutt.state, STATE_CLOSED)
 
     def test_unique_id_and_name_presented(self):
         """Test when the unique id is presented."""
