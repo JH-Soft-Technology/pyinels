@@ -1,4 +1,13 @@
 """Unit testing of iNels shutter library."""
+
+from time import sleep
+
+from unittest.mock import patch
+from unittest import TestCase
+
+from pyinels.api import Api
+from pyinels.device.pyShutter import pyShutter
+
 from pyinels.const import (
     ATTR_SHUTTER,
     STATE_CLOSED,
@@ -23,13 +32,6 @@ from tests.const_test import (
     TEST_RETURN_RESOURCE_SHUTTER_UP,
     TEST_RETURN_RESOURCE_SHUTTER_DOWN
 )
-
-from time import sleep
-from pyinels.api import Api
-from pyinels.device.pyShutter import pyShutter
-
-from unittest.mock import patch
-from unittest import TestCase
 
 
 SHUTTER_UP_ON = {TEST_SHUTTER_UP: 1}
@@ -77,7 +79,7 @@ class PyShutterTest(TestCase):
         shutt.update()
         # the shutter at the beggining should be none. There will be
         # calibration
-        self.assertIs(shutt.state, STATE_CLOSED)
+        self.assertIs(shutt.state, STATE_OPEN)
 
     def test_unique_id_and_name_presented(self):
         """Test when the unique id is presented."""
@@ -128,3 +130,59 @@ class PyShutterTest(TestCase):
             sleep(1)
             self.assertTrue(shutt.should_stop)
             self.assertEqual(shutt.state, STATE_CLOSED)
+
+    def test_current_position_closing(self):
+        """Testing current poistion of the shutter for closing."""
+        shutt = self.shutter
+
+        # initial state is fully opened so it means 100%
+        shutt.pull_down(3)
+        sleep(1)
+
+        with patch.object(self.api, TEST_API_READ_DATA,
+                          return_value=TEST_RETURN_RESOURCE_SHUTTER_DOWN):
+            self.assertIs(shutt.current_position, 67)
+
+        sleep(1)
+
+        with patch.object(self.api, TEST_API_READ_DATA,
+                          return_value=TEST_RETURN_RESOURCE_SHUTTER_DOWN):
+            self.assertIs(shutt.current_position, 34)
+
+        sleep(2)
+
+        with patch.object(self.api, TEST_API_READ_DATA,
+                          return_value=TEST_RETURN_RESOURCE_SHUTTER_DOWN):
+            self.assertIs(shutt.current_position, 0)
+
+    def test_current_position_opening(self):
+        """Test current position of the sutter for opening."""
+
+        shutt = self.shutter
+
+        # initial state is fully opened so it means 100%
+        shutt.pull_down(0)
+        sleep(1)
+
+        with patch.object(self.api, TEST_API_READ_DATA,
+                          return_value=TEST_RETURN_RESOURCE_SHUTTER_DOWN):
+            self.assertIs(shutt.current_position, 0)
+
+        shutt.pull_up(3)
+        sleep(1)
+
+        with patch.object(self.api, TEST_API_READ_DATA,
+                          return_value=TEST_RETURN_RESOURCE_SHUTTER_DOWN):
+            self.assertIs(shutt.current_position, 33)
+
+        sleep(1)
+
+        with patch.object(self.api, TEST_API_READ_DATA,
+                          return_value=TEST_RETURN_RESOURCE_SHUTTER_DOWN):
+            self.assertIs(shutt.current_position, 66)
+
+        sleep(2)
+
+        with patch.object(self.api, TEST_API_READ_DATA,
+                          return_value=TEST_RETURN_RESOURCE_SHUTTER_DOWN):
+            self.assertIs(shutt.current_position, 100)

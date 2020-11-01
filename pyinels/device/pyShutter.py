@@ -1,12 +1,14 @@
 """Inels shutter class to control blinds."""
 from pyinels.device.pyBase import pyBase
-from pyinels.timer import Timer
+from pyinels.pyTimer import pyTimer
 
 from pyinels.const import (
     ATTR_SWITCH_ON,
     ATTR_SWITCH_OFF,
+    RANGE_BLIND,
     SUPPORT_OPEN,
     SUPPORT_CLOSE,
+    SUPPORT_SET_POSITION,
     SUPPORT_STOP,
     SUPPORT_OPEN_TILT,
     SUPPORT_CLOSE_TILT,
@@ -17,15 +19,19 @@ from pyinels.const import (
     STATE_CLOSED
 )
 
+MIN_RANGE = RANGE_BLIND[0]
+MAX_RANGE = RANGE_BLIND[1]
+
 
 class pyShutter(pyBase):
     """Inels class shutter."""
 
     def __init__(self, device):
-        """Initialize object."""
+        """Initialize shutter."""
         super().__init__(device)
-        self.__timmer = Timer()
-        self.__timeToStop = 0
+        self._timer = pyTimer()
+        self.__time_to_stop = 0
+        self.__last_position = MAX_RANGE
 
     @property
     def state(self):
@@ -38,39 +44,37 @@ class pyShutter(pyBase):
         down_on = up_device == ATTR_SWITCH_OFF \
             and down_device == ATTR_SWITCH_ON
 
-        state = (STATE_OPENING
-                 if up_on and not down_on
-                 else STATE_CLOSING
-                 if not up_on and down_on
-                 else STATE_CLOSED)
+        state = STATE_OPEN
 
-        if self.should_stop is True:
+        if self.should_stop:
             if up_on and not down_on:
                 state = STATE_OPEN
             elif not up_on and down_on:
                 state = STATE_CLOSED
+        else:
+            state = (STATE_OPENING
+                     if up_on and not down_on
+                     else STATE_CLOSING
+                     if not up_on and down_on
+                     else STATE_OPEN)
 
         return state
 
     @property
     def should_stop(self):
         """It is watching if the time to stop evaluate or not"""
-        if self.__timeToStop == 0:
-            return True
 
         # stop the shutter
         result = True
 
-        if self.__timmer._start_time is not None:
+        if self._timer.is_running:
             # timer is still working
-            self.__timmer.update_tick()
-
-            result = self.__timeToStop - self.__timmer.tick <= 0
+            self._timer.update_tick()
 
             # when the timer reach of counting, then stop it
             # otherwise return false
-            if result is True:
-                self.__timmer.stop()
+            if self._timer.elapsed_time < 0:
+                self._timer.stop()
             else:
                 result = False
 
@@ -81,45 +85,92 @@ class pyShutter(pyBase):
         """Definition what the devices supports."""
         return SUPPORT_OPEN \
             | SUPPORT_CLOSE \
+            | SUPPORT_SET_POSITION \
             | SUPPORT_STOP \
             | SUPPORT_OPEN_TILT \
             | SUPPORT_CLOSE_TILT \
             | SUPPORT_STOP_TILT
 
+    @property
+    def current_position(self):
+        """Current position of the shutter."""
+        # It is calculated from the time to close the shutter,
+        # defined with pull up or pull down fnc called.
+        # 0 - fully closed - MIN_RANGE
+        # 100 - fully opened - MAX_RANGE
+        state = self.state
+
+        position = self.__last_position
+
+        # this is a situation when is not set the timer to count
+        if self.__time_to_stop == 0:
+            position = MAX_RANGE if state is STATE_CLOSING else MIN_RANGE
+        else:
+            percent = 0
+            # calculate the position based on time to stop and current
+            # tick of the timer
+            if self._timer.tick is not None:
+                tick = int(self._timer.tick)
+                percent = percent if tick == 0 else (
+                    tick / self.__time_to_stop) * 100
+
+                percent = int(MAX_RANGE if percent > MAX_RANGE else percent)
+            # when the timer stops and last position is the same as one
+            # of the range side then return the last position
+            elif self._timer.tick is None and \
+                    (self.__last_position == MIN_RANGE or self.__last_position
+                        == MAX_RANGE):
+                return self.__last_position
+
+            if state is STATE_CLOSING:
+                position = MIN_RANGE if position < MIN_RANGE \
+                    else MAX_RANGE - percent
+            elif state is STATE_OPENING:
+                position = MAX_RANGE if position > MAX_RANGE \
+                    else MIN_RANGE + percent
+            elif state is STATE_CLOSED:
+                position = MIN_RANGE
+            elif state is STATE_OPEN:
+                position = MAX_RANGE
+
+        self.__last_position = position
+
+        return int(self.__last_position)
+
     def pull_up(self, stop_after=None):
         """Turn up the shutter."""
-        self.__timmer.start(STATE_OPENING)
+        self.__set_time_to_stop(stop_after)
+        self._timer.start(self.__time_to_stop)
 
         value = {f'{self._device.down}': ATTR_SWITCH_OFF,
                  f'{self._device.up}': ATTR_SWITCH_ON}
 
-        self.__call_service(value, self._device.up, stop_after)
+        self.__call_service(value, self._device.up)
 
     def pull_down(self, stop_after=None):
         """ Turn down the shutter."""
-        self.__timmer.start(STATE_CLOSING)
+        self.__set_time_to_stop(stop_after)
+        self._timer.start(self.__time_to_stop)
 
         value = {f'{self._device.down}': ATTR_SWITCH_ON,
                  f'{self._device.up}': ATTR_SWITCH_OFF}
 
-        self.__call_service(value, self._device.down, stop_after)
+        self.__call_service(value, self._device.down)
 
     def stop(self):
         """ Stop the shutter."""
-        direction = self.__timmer._direction
-
-        self.__timmer.stop()
+        self._timer.stop()
 
         value = {f'{self._device.down}': ATTR_SWITCH_OFF,
                  f'{self._device.up}': ATTR_SWITCH_OFF}
 
         self.__call_service(value, self._device.down)
 
-        return direction
-
-    def __call_service(self, value, direction, stop_after=None):
+    def __call_service(self, value, direction):
         """Internal call of the device write value."""
         self._device.write_value(value, direction)
 
+    def __set_time_to_stop(self, stop_after):
+        """Set time to stop private property."""
         if stop_after is not None:
-            self.__timeToStop = stop_after
+            self.__time_to_stop = stop_after
