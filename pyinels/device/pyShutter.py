@@ -159,7 +159,8 @@ class pyShutter(pyBase):
 
     def stop(self):
         """ Stop the shutter."""
-        self._timer.stop()
+        if self._timer.is_running:
+            self._timer.stop()
 
         value = {f'{self._device.down}': ATTR_SWITCH_OFF,
                  f'{self._device.up}': ATTR_SWITCH_OFF}
