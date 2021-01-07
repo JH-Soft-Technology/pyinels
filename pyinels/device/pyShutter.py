@@ -3,8 +3,12 @@ from pyinels.device.pyBase import pyBase
 from pyinels.pyTimer import pyTimer
 
 from pyinels.const import (
+    ATTR_DOWN,
+    ATTR_UP,
+    ATTR_STOP,
     ATTR_SWITCH_ON,
     ATTR_SWITCH_OFF,
+    DIRECTIONS_DICT,
     RANGE_BLIND,
     SUPPORT_OPEN,
     SUPPORT_CLOSE,
@@ -36,8 +40,8 @@ class pyShutter(pyBase):
     @property
     def state(self):
         """State where the shutter is."""
-        up_device = self._device.value[self._device.up]
-        down_device = self._device.value[self._device.down]
+        up_device = self.up
+        down_device = self.down
 
         up_on = up_device == ATTR_SWITCH_ON \
             and down_device == ATTR_SWITCH_OFF
@@ -142,34 +146,38 @@ class pyShutter(pyBase):
         self.__set_time_to_stop(stop_after)
         self._timer.start(self.__time_to_stop)
 
-        value = {f'{self._device.down}': ATTR_SWITCH_OFF,
-                 f'{self._device.up}': ATTR_SWITCH_ON}
-
-        self.__call_service(value, self._device.up)
+        self.__call_service(DIRECTIONS_DICT.get(ATTR_UP))
 
     def pull_down(self, stop_after=None):
         """ Turn down the shutter."""
         self.__set_time_to_stop(stop_after)
         self._timer.start(self.__time_to_stop)
 
-        value = {f'{self._device.down}': ATTR_SWITCH_ON,
-                 f'{self._device.up}': ATTR_SWITCH_OFF}
-
-        self.__call_service(value, self._device.down)
+        self.__call_service(DIRECTIONS_DICT.get(ATTR_DOWN))
 
     def stop(self):
         """ Stop the shutter."""
         if self._timer.is_running:
             self._timer.stop()
 
-        value = {f'{self._device.down}': ATTR_SWITCH_OFF,
-                 f'{self._device.up}': ATTR_SWITCH_OFF}
+        self.__call_service(DIRECTIONS_DICT.get(ATTR_STOP))
 
-        self.__call_service(value, self._device.down)
-
-    def __call_service(self, value, direction):
+    def __call_service(self, direction):
         """Internal call of the device write value."""
-        self._device.write_value(value, direction)
+
+        if direction == DIRECTIONS_DICT.get(ATTR_STOP):
+            self._device.write_value(self.__set_value(
+                ATTR_SWITCH_OFF, ATTR_SWITCH_OFF))
+        elif direction == DIRECTIONS_DICT.get(ATTR_UP):
+            self._device.write_value(self.__set_value(
+                ATTR_SWITCH_OFF, ATTR_SWITCH_ON))
+        elif direction == DIRECTIONS_DICT.get(ATTR_DOWN):
+            self._device.write_value(self.__set_value(
+                ATTR_SWITCH_ON, ATTR_SWITCH_OFF))
+
+    def __set_value(self, down, up):
+        """Set the value to call service."""
+        return {f'{self._device.down}': down, f'{self._device.up}': up}
 
     def __set_time_to_stop(self, stop_after):
         """Set time to stop private property."""

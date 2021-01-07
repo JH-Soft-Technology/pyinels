@@ -30,6 +30,33 @@ class pyBase:
         """Unique id of the device."""
         return self._device.id
 
+    @property
+    def up(self):
+        """Value of shutter for up."""
+        return self._device.value[self._device.up if self._device.up
+                                  is not None else self._device.id]
+
+    @property
+    def down(self):
+        """Value of sutter for down."""
+        return self._device.value[self._device.down if self._device.down
+                                  is not None else self._device.id]
+
+    @property
+    def value(self):
+        """Value of the device."""
+        val = self._device.value[self._device.id]
+
+        if isinstance(val, str):
+            if val.isdigit():
+                return int(val)
+            elif val.replace('.', '', 1).isdigit() and val.count('.') < 2:
+                return float(val)
+            else:
+                return val
+        else:
+            return val
+
     def turn_off(self):
         """Turn the switch off."""
         self._device.write_value(ATTR_SWITCH_OFF)

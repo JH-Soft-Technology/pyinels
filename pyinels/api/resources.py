@@ -100,12 +100,14 @@ class ApiResource:
     def set_value(self, value):
         self.__value = value
 
-    def write_value(self, value, device_id=None):
+    def write_value(self, value):
         """Set value to the device."""
-        if isinstance(value, int) or isinstance(value, float) \
-                or isinstance(value, object):
-            self.__api.write(self, value, device_id)
-            self.set_value(value)
+
+        if isinstance(value, int) or isinstance(value, float):
+            value = {f'{self.id}': f'{value}'}
+
+        self.__api.write(self, value)
+        self.set_value(value)
 
     def __init__(self, json, api):
         """Initializer of the Api resource."""

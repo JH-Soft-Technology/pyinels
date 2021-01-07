@@ -95,19 +95,20 @@ class ResourceTest(TestCase):
         with patch.object(self.api, '_Api__writeValues', return_value=None):
             # set int
             self.garage_door.write_value(1)
-            self.assertEqual(self.garage_door.value, 1)
+            self.assertEqual(self.garage_door.value[self.garage_door.id], '1')
 
             # change int to another value
             self.garage_door.write_value(0)
-            self.assertEqual(self.garage_door.value, 0)
+            self.assertEqual(self.garage_door.value[self.garage_door.id], '0')
 
             # change to float with different value
             self.garage_door.write_value(25.0)
-            self.assertEqual(self.garage_door.value, 25.0)
+            self.assertEqual(
+                self.garage_door.value[self.garage_door.id], '25.0')
 
             # change to int with same value
             self.garage_door.write_value(25)
-            self.assertEqual(self.garage_door.value, 25)
+            self.assertEqual(self.garage_door.value[self.garage_door.id], '25')
 
     @patch(f'{TEST_API_CLASS_NAMESPACE}.{TEST_API_READ_DATA}')
     def test_is_available(self, mock_garage_object):
