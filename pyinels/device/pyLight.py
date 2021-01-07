@@ -18,17 +18,16 @@ class pyLight(pyBase):
     def __init__(self, device):
         """Initialize object."""
         super().__init__(device)
-        self.__has_brightness = isinstance(
-            self._device.value[self._device.id], float)
+        self.__has_brightness = isinstance(self.value, float)
 
     @property
     def state(self):
         """State of the light."""
         if self.has_brightness:
-            return (True if self._device.value[self._device.id]
+            return (True if self.value
                     > MIN_RANGE else False)
 
-        return (True if self._device.value[self._device.id]
+        return (True if self.value
                 == ATTR_SWITCH_ON else False)
 
     @property
@@ -45,7 +44,7 @@ class pyLight(pyBase):
     def brightness(self):
         """Return the brightness value."""
         if self.has_brightness is True:
-            return self._device.value[self._device.id]
+            return self.value
 
         return None
 

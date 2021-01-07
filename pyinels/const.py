@@ -13,6 +13,7 @@ ATTR_TEMP_SET = "Temp_set"
 ATTR_TITLE = "Title"
 ATTR_TYPE = "Type"
 ATTR_UP = "Up"
+ATTR_STOP = "Stop"
 
 # Internal device attributes
 ATTR_SWITCH = "switch"
@@ -48,6 +49,12 @@ INELS_BUS_ATTR_DICT = {
     "Group": "group"
 }
 
+DIRECTIONS_DICT = {
+    "Up": "up",
+    "Dwon": "down",
+    "Stop": "stop"
+}
+
 NAME = "pyinels"
 
 RANGE_BLIND = (0, 100)
@@ -72,4 +79,4 @@ STATE_OPENING = "opening"
 STATE_CLOSED = "closed"
 STATE_CLOSING = "closing"
 
-VERSION = "0.5.10"
+VERSION = "0.5.11"

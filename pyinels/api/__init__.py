@@ -110,7 +110,7 @@ class Api:
                 'readDeviceData', f'{device_ids} is not a list!')
         return self.__readDeviceData(device_ids)
 
-    def write(self, device, value, device_id=None):
+    def write(self, device, value):
         """Write data to multiple devices."""
         if not hasattr(device, 'id'):
             raise ApiDataTypeException(

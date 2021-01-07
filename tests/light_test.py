@@ -31,6 +31,7 @@ LIGHT_RETURN_ON = {LIGHT_ID: 1}
 
 LIGHT_RETURN_DIMMABLE_OFF = {LIGHT_ID: MIN_RANGE}
 LIGHT_RETURN_DIMMABLE_ON = {LIGHT_ID: MAX_RANGE}
+LIGHT_RETURN_DIMMABLE_50 = {LIGHT_ID: 50}
 
 
 class PyLightTest(TestCase):
@@ -170,6 +171,23 @@ class PyLightDimmableTest(TestCase):
             lg.turn_on()
 
             lg.update()
+            self.assertTrue(lg.state)
+
+    def test_set_brightness_to_50_percent(self):
+        """Test the brightnes to some value."""
+
+        lg = self.light
+
+        lg.update()
+        self.assertFalse(lg.state)
+        self.assertTrue(lg.has_brightness)
+
+        with patch.object(self.api, TEST_API_READ_DATA,
+                          return_value=LIGHT_RETURN_DIMMABLE_50):
+
+            lg.set_brightness(50)
+
+            self.assertEqual(lg.brightness(), 50)
             self.assertTrue(lg.state)
 
     @patch(f'{TEST_API_CLASS_NAMESPACE}.{TEST_API_READ_DATA}')
