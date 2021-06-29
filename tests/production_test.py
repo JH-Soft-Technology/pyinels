@@ -7,14 +7,16 @@ from pyinels.device.pySwitch import pySwitch
 from pyinels.device.pyDoor import pyDoor
 from pyinels.device.pyShutter import pyShutter
 
-from unittest import TestCase
+# from unittest import TestCase
 
 # class ProductionTest(TestCase):
+
+
 class ProductionTest():
     """Library used agains production server."""
 
     def setUp(self):
-        """Setup all necessary instances nad mocks."""    
+        """Setup all necessary instances nad mocks."""
         self.api = Api("http://192.168.2.102", 8001, "CU3")
         self.devices = self.api.devices
 
@@ -35,8 +37,9 @@ class ProductionTest():
 
     def test_create_light(self):
         """create and test light."""
-        devices = [x for x in self.devices if x.id 
-        == "SV_7_Pokoj_dole"]        
+        devices = [
+            x for x in self.devices
+            if x.id == "SV_7_Pokoj_dole"]
 
         light = pyLight(devices[0])
         self.assertEqual(light.state, False)
@@ -59,8 +62,9 @@ class ProductionTest():
 
     def test_create_switch(self):
         """create and test switch."""
-        devices = [x for x in self.devices if x.id 
-        == "ZAS_1B_Pokoj_dole"]
+        devices = [
+            x for x in self.devices if x.id
+            == "ZAS_1B_Pokoj_dole"]
 
         switch = pySwitch(devices[0])
 
@@ -72,8 +76,9 @@ class ProductionTest():
 
     def test_create_door(self):
         """crate and test door."""
-        devices = [x for x in self.devices if x.id 
-        == "Vrata_Garaz"]
+        devices = [
+            x for x in self.devices if x.id
+            == "Vrata_Garaz"]
 
         door = pyDoor(devices[0])
 
@@ -83,8 +88,9 @@ class ProductionTest():
 
     def test_create_shutter(self):
         """create and test shutter."""
-        devices = [x for x in self.devices if x.id 
-        == "ROL_Pokoj_host_nahoru_ROL_Pokoj_host_dolu"]
+        devices = [
+            x for x in self.devices
+            if x.id == "ROL_Pokoj_host_nahoru_ROL_Pokoj_host_dolu"]
 
         shutter = pyShutter(devices[0])
 
