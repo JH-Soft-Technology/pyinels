@@ -25,7 +25,7 @@ class pyDoor(pyBase):
     def turn_off(self,):
         """Trigger impoulse button. Write 1 to device and then 0 back."""
         self._device.write_value(ATTR_SWITCH_ON)
-        sleep(1)  # delay to be sure that the pulse was sent
+        sleep(2)  # delay to be sure that the pulse was sent
         self._device.write_value(ATTR_SWITCH_OFF)
 
     def turn_on(self,):
