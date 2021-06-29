@@ -39,6 +39,7 @@ class Api:
         self.__port = port
         self.__version = version
         self.__proxy = None
+        self.__devices = None
 
     @property
     def proxy(self):
@@ -47,8 +48,16 @@ class Api:
             return self.__proxy
 
         self.__proxy = self.__conn()
-        self.ping()
         return self.__proxy
+
+    @property
+    def devices(self):
+        """Loaded devices by getAllDevices."""
+        if (self.__devices is None):
+            self.__devices = self.getAllDevices()
+            return self.__devices
+
+        return self.__devices
 
     def __conn(self):
         """Instantient Api iNels BUS connection class."""

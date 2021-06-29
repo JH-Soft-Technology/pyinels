@@ -13,6 +13,10 @@
 			"NODE_VERSION": "lts/*"
 		}
 	},
+	"runArgs": [
+		"--network=host"
+	],
+	"postCreateCommand": "bash ./.devcontainer/postCreateCommand.sh",
 	// Set *default* container specific settings.json values on container create.
 	"settings": {
 		"files.eol": "\n",
@@ -56,8 +60,13 @@
 		"ms-python.vscode-pylance",
 		"github.vscode-pull-request-github"
 	],
+	"appPort": [
+		"8001:8001"
+	],
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
+	"forwardPorts": [
+		8001
+	],
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// "postCreateCommand": "pip3 install --user -r requirements.txt",
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
