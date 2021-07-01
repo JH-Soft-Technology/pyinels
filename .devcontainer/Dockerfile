@@ -1,10 +1,10 @@
 # See here for image contents: https://github.com/microsoft/vscode-dev-containers/tree/v0.183.0/containers/python-3/.devcontainer/base.Dockerfile
 
-# [Choice] Python version: 3, 3.9, 3.8, 3.7, 3.6
-ARG VARIANT="3.7"
+# [Choice] Python version: 3, 3.9, 3.8, 3.7, 3.6, 3.8
+ARG VARIANT="3.8"
 
 #FROM mcr.microsoft.com/vscode/devcontainers/python:0-${VARIANT}
-FROM python:3.7-alpine3.13 as base
+FROM python:3.8-alpine3.13 as base
 
 # [Option] Install Node.js
 # ARG INSTALL_NODE="true"
@@ -18,17 +18,18 @@ FROM python:3.7-alpine3.13 as base
 
 ENV PYTHONFAULTHANDLER=1 \
     PYTHONHASHSEED=random \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    PYTHONASYNCIODEBUG=1
 
 WORKDIR /app
 
 ENV PIP_DEFAULT_TIMEOUT=100 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PIP_NO_CACHE_DIR=1 
+    PIP_NO_CACHE_DIR=1
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN python -m venv /venv    
+RUN python -m venv /venv
 
 # [Optional] Uncomment this section to install additional OS packages.
 

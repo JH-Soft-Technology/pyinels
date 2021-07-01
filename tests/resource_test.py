@@ -1,5 +1,5 @@
 """Resource testing."""
-from unittest import TestCase
+from unittest import async_case
 from unittest.mock import patch
 
 from pyinels.api import Api
@@ -23,7 +23,7 @@ GARAGE_CLOSE = {GARAGE_ID: 0}
 GARAGE_OPEN = {GARAGE_ID: 1}
 
 
-class ResourceTest(TestCase):
+class ResourceTest(async_case.IsolatedAsyncioTestCase):
     """Class to test resource of api iNels BUS."""
 
     def setUp(self):
@@ -40,7 +40,9 @@ class ResourceTest(TestCase):
         for p in self.patches:
             p.start()
 
-        self.res_list = self.api.getRoomDevices('garage')
+    async def asyncSetUp(self):
+        """Setup all neccessary async stuff."""
+        self.res_list = await self.api.getRoomDevices('garage')
 
         self.garage_door = self.res_list[0]
 
@@ -75,7 +77,7 @@ class ResourceTest(TestCase):
         self.assertIsNone(res.value)
 
     @patch(f'{TEST_API_CLASS_NAMESPACE}.read')
-    def test_observe(self, mock_room_devices):
+    async def test_observe(self, mock_room_devices):
         """Test the observe method of the Api resources. It should touche
         the iNels BUS."""
         mock_room_devices.return_value = GARAGE_CLOSE
@@ -83,39 +85,40 @@ class ResourceTest(TestCase):
         self.assertEqual(len(self.res_list), 1)
         self.assertEqual(self.garage_door.title, GARAGE_NAME)
 
-        value = self.garage_door.observe()[self.garage_door.id]
+        door = await self.garage_door.observe()
+        value = door[self.garage_door.id]
 
         self.assertEqual(value, 0)
 
         self.assertIsNotNone(self.garage_door.value)
         self.assertEqual(self.garage_door.value[self.garage_door.id], 0)
 
-    def test_write_value(self):
+    async def test_write_value(self):
         """Test set value to the iNels BUS."""
         with patch.object(self.api, '_Api__writeValues', return_value=None):
             # set int
-            self.garage_door.write_value(1)
+            await self.garage_door.write_value(1)
             self.assertEqual(self.garage_door.value[self.garage_door.id], '1')
 
             # change int to another value
-            self.garage_door.write_value(0)
+            await self.garage_door.write_value(0)
             self.assertEqual(self.garage_door.value[self.garage_door.id], '0')
 
             # change to float with different value
-            self.garage_door.write_value(25.0)
+            await self.garage_door.write_value(25.0)
             self.assertEqual(
                 self.garage_door.value[self.garage_door.id], '25.0')
 
             # change to int with same value
-            self.garage_door.write_value(25)
+            await self.garage_door.write_value(25)
             self.assertEqual(self.garage_door.value[self.garage_door.id], '25')
 
     @patch(f'{TEST_API_CLASS_NAMESPACE}.{TEST_API_READ_DATA}')
-    def test_is_available(self, mock_garage_object):
+    async def test_is_available(self, mock_garage_object):
         mock_garage_object.return_value = None
 
         """Test when the resource object is available."""
         with patch.object(self.api, '_Api__writeValues', return_value=None):
             # set the value of the ApiResource then it should be available
-            self.garage_door.write_value(1)
+            await self.garage_door.write_value(1)
             self.assertTrue(self.garage_door.is_available)

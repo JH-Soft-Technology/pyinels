@@ -6,6 +6,6 @@ from pyinels.device.pyBase import pyBase
 class pySwitch(pyBase):
     """Switch class based on InelsDevice."""
 
-    def __init__(self, device):
+    async def __init__(self, device):
         """Initialize pySwitch class."""
-        super().__init__(device)
+        await super().__init__(device)
