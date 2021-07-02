@@ -9,10 +9,16 @@ from pyinels.const import (
 class pyBase:
     """Inels base class."""
 
-    def __init__(self, device):
+    async def __new__(cls, *a, **kw):
+        """Create new instance of object for async."""
+        instance = super().__new__(cls)
+        await instance.__init__(*a, **kw)
+        return instance
+
+    async def __init__(self, device):
         """Initialize object."""
         self._device = device
-        self._device.observe()
+        await self._device.observe()
 
     @property
     def state(self):
@@ -57,17 +63,17 @@ class pyBase:
         else:
             return val
 
-    def turn_off(self):
+    async def turn_off(self):
         """Turn the switch off."""
-        self._device.write_value(ATTR_SWITCH_OFF)
+        await self._device.write_value(ATTR_SWITCH_OFF)
 
-    def turn_on(self):
+    async def turn_on(self):
         """Turn the switch on."""
-        self._device.write_value(ATTR_SWITCH_ON)
+        await self._device.write_value(ATTR_SWITCH_ON)
 
-    def update(self):
+    async def update(self):
         """Update data on the device."""
-        return self._device.observe()
+        return await self._device.observe()
 
     def __repr__(self):
         """Object representation."""

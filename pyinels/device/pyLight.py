@@ -15,9 +15,9 @@ MAX_RANGE = RANGE_BRIGHTNESS[1]
 class pyLight(pyBase):
     """Inels class based on InelsDevice."""
 
-    def __init__(self, device):
+    async def __init__(self, device):
         """Initialize object."""
-        super().__init__(device)
+        await super().__init__(device)
         self.__has_brightness = isinstance(self.value, float)
 
     @property
@@ -35,11 +35,11 @@ class pyLight(pyBase):
         """Supports brightness."""
         return self.__has_brightness
 
-    def set_brightness(self, value):
+    async def set_brightness(self, value):
         """Set brightness of the light."""
         if (self.has_brightness
                 and (value >= MIN_RANGE and value <= MAX_RANGE)):
-            self._device.write_value(value)
+            await self._device.write_value(value)
 
     def brightness(self):
         """Return the brightness value."""
@@ -48,18 +48,18 @@ class pyLight(pyBase):
 
         return None
 
-    def turn_off(self):
+    async def turn_off(self):
         """Turn off the light."""
         if self.has_brightness is True:
-            self._device.write_value(MIN_RANGE)
+            await self._device.write_value(MIN_RANGE)
             return
 
-        self._device.write_value(ATTR_SWITCH_OFF)
+        await self._device.write_value(ATTR_SWITCH_OFF)
 
-    def turn_on(self):
+    async def turn_on(self):
         """Turn on the light."""
         if self.has_brightness is True:
-            self._device.write_value(MAX_RANGE)
+            await self._device.write_value(MAX_RANGE)
         else:
             # set device value to 0 when turn off and to 1 when turn on
-            self._device.write_value(ATTR_SWITCH_ON)
+            await self._device.write_value(ATTR_SWITCH_ON)

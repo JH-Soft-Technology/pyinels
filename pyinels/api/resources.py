@@ -1,5 +1,7 @@
 """Class Api resources returned from the iNels BUS."""
 import logging
+import asyncio
+import concurrent.futures
 
 from pyinels.exception import ApiClassTypeException
 
@@ -100,13 +102,13 @@ class ApiResource:
     def set_value(self, value):
         self.__value = value
 
-    def write_value(self, value):
+    async def write_value(self, value):
         """Set value to the device."""
 
         if isinstance(value, int) or isinstance(value, float):
             value = {f'{self.id}': f'{value}'}
 
-        self.__api.write(self, value)
+        await asyncio.create_task(self.__api.write(self, value))
         self.set_value(value)
 
     def __init__(self, json, api):
@@ -114,17 +116,22 @@ class ApiResource:
         self.__json = json
         self.__api = api
         self.__value = None
+        self.pool = concurrent.futures.ThreadPoolExecutor()
 
-    def observe(self):
+    async def observe(self):
         """Read the current value of the device."""
         try:
             raw = None
 
             # shutter in action
-            if self.up is not None and self.down is not None:
-                raw = self.__api.read([self.up, self.down])
+            if self.up is not None and \
+                    self.down is not None:
+
+                raw = await asyncio.create_task(
+                    self.__api.read([self.up, self.down]))
             else:
-                raw = self.__api.read([self.id])
+                raw = await asyncio.create_task(
+                    self.__api.read([self.id]))
 
             self.set_value(raw)
 
@@ -140,12 +147,13 @@ class ApiResource:
     @property
     def is_available(self):
         """Device availability property."""
+        value = None
         # first test when device has any value
         if (hasattr(self, '_ApiResource__value')
                 and self._ApiResource__value is not None):
             return True
         else:
             # if not then try to observer
-            self.observe()
+            value = self.pool.submit(asyncio.run, self.observe()).result()
         # when the result is None then the device is not available
-        return False if self.value[self.id] is None else True
+        return False if value[self.id] is None else True

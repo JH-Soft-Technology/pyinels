@@ -1,5 +1,4 @@
 """Inels door class for iNels BUS."""
-
 from time import sleep
 from pyinels.device.pyBase import pyBase
 
@@ -18,21 +17,21 @@ from pyinels.const import (
 class pyDoor(pyBase):
     """Inels class based on InelsDevice."""
 
-    def __init__(self, device):
+    async def __init__(self, device):
         """Initialize pyDoor class."""
-        super().__init__(device)
+        await super().__init__(device)
 
-    def turn_off(self,):
+    async def turn_off(self,):
         """Trigger impoulse button. Write 1 to device and then 0 back."""
-        self._device.write_value(ATTR_SWITCH_ON)
+        await self._device.write_value(ATTR_SWITCH_ON)
         sleep(2)  # delay to be sure that the pulse was sent
-        self._device.write_value(ATTR_SWITCH_OFF)
+        await self._device.write_value(ATTR_SWITCH_OFF)
 
-    def turn_on(self,):
+    async def turn_on(self,):
         """Same as turn off."""
-        self.turn_off()
+        await self.turn_off()
 
-    def update(self):
+    async def update(self):
         """Does not have any sens due to the pulse behavior."""
         return 0
 

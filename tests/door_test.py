@@ -1,4 +1,5 @@
 """Unit testing of iNels door library."""
+
 from pyinels.const import ATTR_DOOR
 
 from tests.const_test import (
@@ -15,7 +16,8 @@ from pyinels.api import Api
 from pyinels.device.pyDoor import pyDoor
 
 from unittest.mock import patch
-from unittest import TestCase
+from unittest import async_case
+
 
 DOOR_ID = "Vrata_Garaz"
 DOOR_NAME = "Vrata"
@@ -24,7 +26,7 @@ DOOR_RETURN_OFF = {DOOR_ID: 0}
 DOOR_RETURN_ON = {DOOR_ID: 1}
 
 
-class PyDoorTest(TestCase):
+class PyDoorTest(async_case.IsolatedAsyncioTestCase):
     """Class to test iNels door library."""
 
     def setUp(self):
@@ -43,10 +45,13 @@ class PyDoorTest(TestCase):
             p.start()
 
         self.api = Api(TEST_HOST, TEST_PORT, TEST_VERSION)
-        doors = [device for device in self.api.getRoomDevices(
+
+    async def asyncSetUp(self):
+        """Setup all neccessary async stuff."""
+        doors = [device for device in await self.api.getRoomDevices(
             'garage') if device.type == ATTR_DOOR]
 
-        self.door = pyDoor(doors[0])
+        self.door = await pyDoor(doors[0])
 
     def tearDown(self):
         """Destroy all instances and mocks."""
@@ -55,11 +60,11 @@ class PyDoorTest(TestCase):
         patch.stopall()
         self.patches = None
 
-    def test_state(self):
+    async def test_state(self):
         """Test the state of the pyDoor."""
         s = self.door
 
-        s.update()
+        await s.update()
         # the door at the beggining should be turned off
         self.assertFalse(s.state)
 
@@ -73,32 +78,32 @@ class PyDoorTest(TestCase):
         self.assertEqual(s.unique_id, DOOR_ID)
         self.assertEqual(s.name, DOOR_NAME)
 
-    def test_turn_on(self):
+    async def test_turn_on(self):
         """Test turn on the door."""
         s = self.door
 
-        s.update()
+        await s.update()
         self.assertFalse(s.state)
 
         with patch.object(self.api, TEST_API_READ_DATA,
                           return_value=DOOR_RETURN_ON):
-            s.turn_on()
+            await s.turn_on()
 
-            s.update()
+            await s.update()
             self.assertFalse(s.state)
 
-    def test_turn_off(self):
+    async def test_turn_off(self):
         """Test turn off the door."""
         s = self.door
 
         with patch.object(self.api, TEST_API_READ_DATA,
                           return_value=DOOR_RETURN_ON):
-            s.turn_on()
+            await s.turn_on()
 
-            s.update()
+            await s.update()
             self.assertFalse(s.state)
 
-        s.turn_off()
+        await s.turn_off()
 
-        s.update()
+        await s.update()
         self.assertFalse(s.state)

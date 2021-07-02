@@ -3,7 +3,7 @@
     /** Enable format on save */
     "editor.formatOnSave": true,
     "python.testing.pytestEnabled": true,
-    "python.formatting.provider": "black",
+    "python.formatting.provider": "yapf",
     "python.formatting.blackArgs": [
         "\"--line-length\", \"80\""
     ]

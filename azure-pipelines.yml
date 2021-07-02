@@ -11,17 +11,17 @@ pool:
 strategy:
   matrix:
     Python38:
-      python.version: '3.8'
+      python.version: '3.8.11'
 
 steps:
 - task: UsePythonVersion@0
   inputs:
-    versionSpec: '$(python.version)'
-  displayName: 'Use Python $(python.version)'
+    versionSpec: '3.8.11'
+  displayName: 'Use Python 3.8.11'
 
 - script: |
     python -m pip install tox
-    python -m pip install flake8    
+    python -m pip install flake8
   displayName: 'Install tox and flake8'
 
 - script: |
@@ -29,5 +29,5 @@ steps:
   displayName: 'Unit tests'
 
 - script: |
-    flake8 pyinels tests    
+    flake8 pyinels tests
   displayName: 'Linting with flake8'
