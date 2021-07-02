@@ -1,5 +1,4 @@
 """Api class for iNels BUS."""
-
 import asyncio
 import logging
 
@@ -41,6 +40,7 @@ class Api:
         self.__version = version
         self.__proxy = None
         self.__devices = None
+        self.loop = asyncio.get_event_loop()
 
     @property
     def proxy(self):
@@ -54,11 +54,11 @@ class Api:
     @property
     def devices(self):
         """Loaded devices by getAllDevices."""
-        if (self.__devices is None):
-            self.__devices = self.getAllDevices()
-            return self.__devices
-
         return self.__devices
+
+    def set_devices(self, devices):
+        """Set device prop."""
+        self.__devices = devices
 
     def __conn(self):
         """Instantient Api iNels BUS connection class."""
@@ -73,23 +73,24 @@ class Api:
 
     async def ping(self):
         """Check connection iNels BUS with ping."""
-        return await asyncio.create_task(self.proxy.ping())
+        return await self.loop.run_in_executor(None, self.proxy.ping)
 
     async def getPlcIp(self):
         """Get Ip address of PLC."""
-        return await asyncio.create_task(self.proxy.getPlcIP())
+        return await self.loop.run_in_executor(None, self.proxy.getPlcIP)
 
     async def getRooms(self):
         """List of all rooms from Connection server website."""
-        return await asyncio.create_task(self.proxy.getRooms())
+        return await self.loop.run_in_executor(None, self.proxy.getRooms)
 
     async def getRoomDevicesRaw(self, room_name):
         """List of all devices in deffined room."""
-        return await asyncio.create_task(self.proxy.getRoomDevices(room_name))
+        return await self.loop.run_in_executor(
+            None, self.proxy.getRoomDevices, room_name)
 
     async def getRoomDevices(self, room_name):
         """List of all devices in defined room."""
-        return await asyncio.create_task(self.__roomDevicesToJson(room_name))
+        return await self.__roomDevicesToJson(room_name)
 
     async def getAllDevices(self):
         """Get all devices from all rooms."""
@@ -132,7 +133,7 @@ class Api:
 
     async def __writeValues(self, command):
         """Write data to the proxy."""
-        asyncio.create_task(self.proxy.writeValues(command))
+        self.loop.run_in_executor(None, self.proxy.writeValues, command)
 
     async def __roomDevicesToJson(self, room_name):
         """Create json object from devices listed in preffered room."""
@@ -202,4 +203,5 @@ class Api:
 
     async def __readDeviceData(self, device_names):
         """Reading devices data from proxy."""
-        return await asyncio.create_task(self.proxy.read(device_names))
+        return await self.loop.run_in_executor(
+            None, self.proxy.read, device_names)

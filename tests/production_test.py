@@ -7,24 +7,28 @@ from pyinels.device.pySwitch import pySwitch
 from pyinels.device.pyDoor import pyDoor
 from pyinels.device.pyShutter import pyShutter
 
-# from unittest import TestCase
+# from unittest import async_case
 
-PLC_IP_ADDRESS = "192.168.2.102"
+MMS_IP_ADDRESS = "192.168.2.102"
+PLC_IP_ADDRESS = "192.168.2.101"
 
 
-# class ProductionTest(TestCase):
+# class ProductionTest(async_case.IsolatedAsyncioTestCase):
 class ProductionTest():
     """Library used agains production server."""
 
     def setUp(self):
         """Setup all necessary instances nad mocks."""
-        self.api = Api(f'http://{PLC_IP_ADDRESS}', 8001, "CU3")
-        self.devices = self.api.devices
+        self.api = Api(f'http://{MMS_IP_ADDRESS}', 8001, "CU3")
+
+    async def asyncSetUp(self):
+        """Setup all neccessary async stuff."""
+        devices = await self.api.getAllDevices()
+        self.api.set_devices(devices)
 
     def tearDown(self):
         """Remove all attached properties."""
         self.api = None
-        self.devices = None
 
     async def test_ping_success(self):
         """Ping test."""
@@ -40,12 +44,12 @@ class ProductionTest():
 
     def test_loaded_devices(self):
         """Are devices from api loaded?"""
-        self.assertGreater(len(self.devices), 0)
+        self.assertGreater(len(self.api.devices), 0)
 
     async def test_create_light(self):
         """create and test light."""
         devices = [
-            x for x in self.devices
+            x for x in self.api.devices
             if x.id == "SV_7_Pokoj_dole"]
 
         light = await pyLight(devices[0])
@@ -70,7 +74,7 @@ class ProductionTest():
     async def test_create_switch(self):
         """create and test switch."""
         devices = [
-            x for x in self.devices if x.id
+            x for x in self.api.devices if x.id
             == "ZAS_1B_Pokoj_dole"]
 
         switch = await pySwitch(devices[0])
@@ -84,7 +88,7 @@ class ProductionTest():
     async def test_create_door(self):
         """crate and test door."""
         devices = [
-            x for x in self.devices if x.id
+            x for x in self.api.devices if x.id
             == "Vrata_Garaz"]
 
         door = await pyDoor(devices[0])
@@ -96,7 +100,7 @@ class ProductionTest():
     async def test_create_shutter(self):
         """create and test shutter."""
         devices = [
-            x for x in self.devices
+            x for x in self.api.devices
             if x.id == "ROL_Pokoj_host_nahoru_ROL_Pokoj_host_dolu"]
 
         shutter = await pyShutter(devices[0])
