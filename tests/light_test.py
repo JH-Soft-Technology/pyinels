@@ -18,7 +18,7 @@ from pyinels.api import Api
 from pyinels.device.pyLight import pyLight
 
 from unittest.mock import patch
-from unittest import async_case
+from unittest import TestCase
 
 MIN_RANGE = RANGE_BRIGHTNESS[0]
 MAX_RANGE = RANGE_BRIGHTNESS[1]
@@ -34,7 +34,7 @@ LIGHT_RETURN_DIMMABLE_ON = {LIGHT_ID: MAX_RANGE}
 LIGHT_RETURN_DIMMABLE_50 = {LIGHT_ID: 50}
 
 
-class PyLightTest(async_case.IsolatedAsyncioTestCase):
+class PyLightTest(TestCase):
     """Class to test iNels light library."""
 
     def setUp(self):
@@ -54,12 +54,10 @@ class PyLightTest(async_case.IsolatedAsyncioTestCase):
 
         self.api = Api(TEST_HOST, TEST_PORT, TEST_VERSION)
 
-    async def asyncSetUp(self):
-        """Setup all neccessary async stuff."""
-        lights = [device for device in await self.api.getRoomDevices(
+        lights = [device for device in self.api.getRoomDevices(
             'garage') if device.type == ATTR_LIGHT]
 
-        self.light = await pyLight(lights[0])
+        self.light = pyLight(lights[0])
 
     def tearDown(self):
         """Destroy all instances and mocks."""
@@ -78,11 +76,11 @@ class PyLightTest(async_case.IsolatedAsyncioTestCase):
         self.assertIsNotNone(lg.unique_id)
         self.assertEqual(lg.unique_id, LIGHT_ID)
 
-    async def test_state(self):
+    def test_state(self):
         """Test the state of the pyLight."""
         lg = self.light
 
-        await lg.update()
+        lg.update()
         # the light at the beggining should be turned off
         self.assertFalse(lg.state)
 
@@ -93,43 +91,43 @@ class PyLightTest(async_case.IsolatedAsyncioTestCase):
         self.assertIsNotNone(lg.unique_id)
         self.assertIsNotNone(lg.name)
 
-    async def test_turn_on(self):
+    def test_turn_on(self):
         """Test turn on the light."""
         lg = self.light
 
-        await lg.update()
+        lg.update()
         self.assertFalse(lg.state)
 
         with patch.object(self.api, TEST_API_READ_DATA,
                           return_value=LIGHT_RETURN_ON):
-            await lg.turn_on()
+            lg.turn_on()
 
-            await lg.update()
+            lg.update()
             self.assertTrue(lg.state)
 
-        await lg.turn_off()
+        lg.turn_off()
 
-        await lg.update()
+        lg.update()
         self.assertFalse(lg.state)
 
-    async def test_turn_off(self):
+    def test_turn_off(self):
         """Test turn off the light."""
         lg = self.light
 
         with patch.object(self.api, TEST_API_READ_DATA,
                           return_value=LIGHT_RETURN_ON):
-            await lg.turn_on()
+            lg.turn_on()
 
-            await lg.update()
+            lg.update()
             self.assertTrue(lg.state)
 
-        await lg.turn_off()
+        lg.turn_off()
 
-        await lg.update()
+        lg.update()
         self.assertFalse(lg.state)
 
 
-class PyLightDimmableTest(async_case.IsolatedAsyncioTestCase):
+class PyLightDimmableTest(TestCase):
     """Class to test iNels light library."""
 
     def setUp(self):
@@ -149,12 +147,10 @@ class PyLightDimmableTest(async_case.IsolatedAsyncioTestCase):
 
         self.api = Api(TEST_HOST, TEST_PORT, TEST_VERSION)
 
-    async def asyncSetUp(self):
-        """Setup all neccessary async stuff."""
-        lights = [device for device in await self.api.getRoomDevices(
+        lights = [device for device in self.api.getRoomDevices(
             'garage') if device.type == ATTR_LIGHT]
 
-        self.light = await pyLight(lights[0])
+        self.light = pyLight(lights[0])
 
     def tearDown(self):
         """Destroy all instances and mocks."""
@@ -163,41 +159,41 @@ class PyLightDimmableTest(async_case.IsolatedAsyncioTestCase):
         patch.stopall()
         self.patches = None
 
-    async def test_turn_on_with_brightness_option(self):
+    def test_turn_on_with_brightness_option(self):
         """Test the light to turn on when the brightness exists."""
 
         lg = self.light
 
-        await lg.update()
+        lg.update()
         self.assertFalse(lg.state)
         self.assertTrue(lg.has_brightness)
 
         with patch.object(self.api, TEST_API_READ_DATA,
                           return_value=LIGHT_RETURN_DIMMABLE_ON):
-            await lg.turn_on()
+            lg.turn_on()
 
-            await lg.update()
+            lg.update()
             self.assertTrue(lg.state)
 
-    async def test_set_brightness_to_50_percent(self):
+    def test_set_brightness_to_50_percent(self):
         """Test the brightnes to some value."""
 
         lg = self.light
 
-        await lg.update()
+        lg.update()
         self.assertFalse(lg.state)
         self.assertTrue(lg.has_brightness)
 
         with patch.object(self.api, TEST_API_READ_DATA,
                           return_value=LIGHT_RETURN_DIMMABLE_50):
 
-            await lg.set_brightness(50)
+            lg.set_brightness(50)
 
             self.assertEqual(lg.brightness(), 50)
             self.assertTrue(lg.state)
 
     @patch(f'{TEST_API_CLASS_NAMESPACE}.{TEST_API_READ_DATA}')
-    async def test_turn_off_with_brightness_option(self, mock_room_devices):
+    def test_turn_off_with_brightness_option(self, mock_room_devices):
         """Test the light to turn off when the brightness exsists."""
         mock_room_devices.return_value = LIGHT_RETURN_DIMMABLE_ON
 
@@ -205,13 +201,13 @@ class PyLightDimmableTest(async_case.IsolatedAsyncioTestCase):
 
         self.assertTrue(lg.has_brightness)
 
-        await lg.update()
+        lg.update()
         self.assertTrue(lg.state)
 
         with patch.object(self.api, TEST_API_READ_DATA,
                           return_value=LIGHT_RETURN_DIMMABLE_OFF):
-            await lg.turn_off()
+            lg.turn_off()
             self.assertTrue(lg.has_brightness)
 
-            await lg.update()
+            lg.update()
             self.assertFalse(lg.state)

@@ -3,7 +3,7 @@
 # import asyncio
 
 from unittest.mock import patch
-from unittest import async_case
+from unittest import TestCase
 
 from pyinels.api import Api
 from pyinels.device.pyShutter import pyShutter
@@ -41,7 +41,7 @@ SHUTTER_DOWN_ON = {TEST_SHUTTER_DOWN: 1}
 SHUTTER_DOWN_OFF = {TEST_SHUTTER_DOWN: 0}
 
 
-class PyShutterTest(async_case.IsolatedAsyncioTestCase):
+class PyShutterTest(TestCase):
     """Class to test iNels shutter library."""
 
     def setUp(self):
@@ -61,12 +61,10 @@ class PyShutterTest(async_case.IsolatedAsyncioTestCase):
 
         self.api = Api(TEST_HOST, TEST_PORT, TEST_VERSION)
 
-    async def asyncSetUp(self):
-        """Setup all neccessary async stuff."""
-        shutters = [device for device in await self.api.getRoomDevices(
+        shutters = [device for device in self.api.getRoomDevices(
             'garage') if device.type == ATTR_SHUTTER]
 
-        self.shutter = await pyShutter(shutters[0])
+        self.shutter = pyShutter(shutters[0])
 
     def tearDown(self):
         """Destroy all instances and mocks."""
@@ -75,11 +73,11 @@ class PyShutterTest(async_case.IsolatedAsyncioTestCase):
         patch.stopall()
         self.patches = None
 
-    async def test_state_after_initialization(self):
+    def test_state_after_initialization(self):
         """Test the state of the pyShutter."""
         shutt = self.shutter
 
-        await shutt.update()
+        shutt.update()
         # the shutter at the beggining should be none. There will be
         # calibration
         self.assertIs(shutt.state, STATE_OPEN)
@@ -94,11 +92,11 @@ class PyShutterTest(async_case.IsolatedAsyncioTestCase):
         self.assertEqual(shutt.unique_id, TEST_SHUTTER_ID)
         self.assertEqual(shutt.name, TEST_SHUTTER_NAME)
 
-    async def test_full_opening(self):
+    def test_full_opening(self):
         """Test full open shutter."""
         shutt = self.shutter
 
-        await shutt.pull_up()
+        shutt.pull_up()
 
         with patch.object(self.api, TEST_API_READ_DATA,
                           return_value=TEST_RETURN_RESOURCE_SHUTTER_UP):
@@ -114,11 +112,11 @@ class PyShutterTest(async_case.IsolatedAsyncioTestCase):
             # self.assertTrue(shutt.should_stop)
             # self.assertEqual(shutt.state, STATE_OPEN)
 
-    async def test_full_close(self):
+    def test_full_close(self):
         """Test to full close the shutter."""
         shutt = self.shutter
 
-        await shutt.pull_down()
+        shutt.pull_down()
 
         with patch.object(self.api, TEST_API_READ_DATA,
                           return_value=TEST_RETURN_RESOURCE_SHUTTER_DOWN):

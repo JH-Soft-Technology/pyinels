@@ -58,52 +58,52 @@ class ApiTest(TestCase):
         self.assertEqual(mock_class.call_count, 1)
 
     @patch('xmlrpc.client.ServerProxy')
-    async def test_connection_failed(self, mock_server):
+    def test_connection_failed(self, mock_server):
         """Test api connection."""
         mock_server.return_value = Mock()
         mock_server.side_effect = ApiException(
             'common_exception', 'Exception occur')
 
-        ret = await self.api.ping()
+        ret = self.api.ping()
         self.assertEqual(True, ret)
         self.assertEqual(mock_server.call_count, 0)
 
     @patch(f'{TEST_API_CLASS_NAMESPACE}.ping')
-    async def test_ping_failed(self, mock_method):
+    def test_ping_failed(self, mock_method):
         """Test ping method."""
         mock_method.return_value = False
-        ret = await self.api.ping()
+        ret = self.api.ping()
 
         self.assertEqual(mock_method.call_count, 1)
         self.assertFalse(ret)
 
     @patch(f'{TEST_API_CLASS_NAMESPACE}.getPlcIp')
-    async def test_getPlcIp_success(self, mock_method):
+    def test_getPlcIp_success(self, mock_method):
         """Test Ip address of the PLC."""
         RET_VAL = "192.168.2.10"
 
         mock_method.return_value = RET_VAL
-        ret = await self.api.getPlcIp()
+        ret = self.api.getPlcIp()
 
         self.assertEqual(mock_method.call_count, 1)
         self.assertEqual(ret, RET_VAL)
 
     @patch(f'{TEST_API_CLASS_NAMESPACE}.getRooms')
-    async def test_getRoomsRaw_list(self, mock_method):
+    def test_getRoomsRaw_list(self, mock_method):
         """Test list of rooms defined on Connection server."""
         mock_method.return_value = TEST_ROOMS
 
-        ret = await self.api.getRooms()
+        ret = self.api.getRooms()
 
         self.assertEqual(mock_method.call_count, 1)
         self.assertEqual(len(ret), 6)
         self.assertEqual(ret[1], 'First floor')
 
     @patch(f'{TEST_API_CLASS_NAMESPACE}.{TEST_API_ROOM_DEVICES}')
-    async def test_getRoomDevices_list(self, mock_method):
+    def test_getRoomDevices_list(self, mock_method):
         """Test list of all devices in room."""
         mock_method.return_value = TEST_RAW_LIGHT
-        raw = await self.api.getRoomDevicesRaw('room')
+        raw = self.api.getRoomDevicesRaw('room')
 
         self.assertEqual(mock_method.call_count, 1)
         self.assertEqual(len(raw), len(mock_method.return_value))
@@ -128,7 +128,7 @@ class ApiTest(TestCase):
                 self.assertEqual(device_value, LIGHT_RETURN_OFF)
 
     @patch(f'{TEST_API_NAMESPACE}.resources.ApiResource.observe')
-    async def test_not_duplicit_entries(self, mock_method_observe):
+    def test_not_duplicit_entries(self, mock_method_observe):
         """Test duplicit entries inside of device list."""
         mock_method_observe.return_value = 0
 
@@ -137,8 +137,7 @@ class ApiTest(TestCase):
                               return_value=TEST_RAW_DUPLICIT_DEVICES):
                 obj_list = self.api.getRoomDevices('room')
 
-                with await patch.object(self.api, "getRooms",
-                                        return_value=["room"]):
+                with patch.object(self.api, "getRooms", return_value=["room"]):
 
                     with patch.object(self.api, "getRoomDevices",
                                       return_value=obj_list):

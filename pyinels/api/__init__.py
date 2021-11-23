@@ -1,5 +1,4 @@
 """Api class for iNels BUS."""
-import asyncio
 import logging
 
 from functools import partial
@@ -40,7 +39,6 @@ class Api:
         self.__version = version
         self.__proxy = None
         self.__devices = None
-        self.loop = asyncio.get_event_loop()
 
     @property
     def proxy(self):
@@ -71,35 +69,34 @@ class Api:
             raise ApiException(
                 "common_exception", "Exception occur", err)
 
-    async def ping(self):
+    def ping(self):
         """Check connection iNels BUS with ping."""
-        return await self.loop.run_in_executor(None, self.proxy.ping)
+        return self.proxy.ping()
 
-    async def getPlcIp(self):
+    def getPlcIp(self):
         """Get Ip address of PLC."""
-        return await self.loop.run_in_executor(None, self.proxy.getPlcIP)
+        return self.proxy.getPlcIP()
 
-    async def getRooms(self):
+    def getRooms(self):
         """List of all rooms from Connection server website."""
-        return await self.loop.run_in_executor(None, self.proxy.getRooms)
+        return self.proxy.getRooms()
 
-    async def getRoomDevicesRaw(self, room_name):
+    def getRoomDevicesRaw(self, room_name):
         """List of all devices in deffined room."""
-        return await self.loop.run_in_executor(
-            None, self.proxy.getRoomDevices, room_name)
+        return self.proxy.getRoomDevices(room_name)
 
-    async def getRoomDevices(self, room_name):
+    def getRoomDevices(self, room_name):
         """List of all devices in defined room."""
-        return await self.__roomDevicesToJson(room_name)
+        return self.__roomDevicesToJson(room_name)
 
-    async def getAllDevices(self):
+    def getAllDevices(self):
         """Get all devices from all rooms."""
         devices = []
 
-        rooms = await self.getRooms()
+        rooms = self.getRooms()
         # go trough all rooms
         for room in rooms:
-            room_devices = await self.getRoomDevices(room)
+            room_devices = self.getRoomDevices(room)
             # go trough all devices in room
             for room_dev in room_devices:
                 is_in = False
@@ -114,33 +111,33 @@ class Api:
 
         return devices
 
-    async def read(self, device_ids):
+    def read(self, device_ids):
         """Get the value from the proxy by device id."""
         if not isinstance(device_ids, list):
             raise ApiDataTypeException(
                 'readDeviceData', f'{device_ids} is not a list!')
-        return await self.__readDeviceData(device_ids)
+        return self.__readDeviceData(device_ids)
 
-    async def write(self, device, value):
+    def write(self, device, value):
         """Write data to multiple devices."""
         if not hasattr(device, 'id'):
             raise ApiDataTypeException(
                 'readDeviceData', f'{device} has no id')
         try:
-            await self.__writeValues(value)
+            self.__writeValues(value)
         except Exception as err:
             raise ApiException("write_proxy", err)
 
-    async def __writeValues(self, command):
+    def __writeValues(self, command):
         """Write data to the proxy."""
-        self.loop.run_in_executor(None, self.proxy.writeValues, command)
+        self.proxy.writeValues(command)
 
-    async def __roomDevicesToJson(self, room_name):
+    def __roomDevicesToJson(self, room_name):
         """Create json object from devices listed in preffered room."""
         d_type = None
         devices = []
 
-        raw_list = await self.getRoomDevicesRaw(room_name)
+        raw_list = self.getRoomDevicesRaw(room_name)
         devices_list = raw_list.split('\n')
 
         for item in devices_list:
@@ -201,7 +198,6 @@ class Api:
 
         return raw_device
 
-    async def __readDeviceData(self, device_names):
+    def __readDeviceData(self, device_names):
         """Reading devices data from proxy."""
-        return await self.loop.run_in_executor(
-            None, self.proxy.read, device_names)
+        return self.proxy.read(device_names)
