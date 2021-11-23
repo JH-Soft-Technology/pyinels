@@ -1,7 +1,5 @@
 """Class Api resources returned from the iNels BUS."""
 import logging
-import asyncio
-import concurrent.futures
 
 from pyinels.exception import ApiClassTypeException
 
@@ -102,13 +100,13 @@ class ApiResource:
     def set_value(self, value):
         self.__value = value
 
-    async def write_value(self, value):
+    def write_value(self, value):
         """Set value to the device."""
 
         if isinstance(value, int) or isinstance(value, float):
             value = {f'{self.id}': f'{value}'}
 
-        await asyncio.create_task(self.__api.write(self, value))
+        self.__api.write(self, value)
         self.set_value(value)
 
     def __init__(self, json, api):
@@ -116,9 +114,8 @@ class ApiResource:
         self.__json = json
         self.__api = api
         self.__value = None
-        self.pool = concurrent.futures.ThreadPoolExecutor()
 
-    async def observe(self):
+    def observe(self):
         """Read the current value of the device."""
         try:
             raw = None
@@ -127,11 +124,9 @@ class ApiResource:
             if self.up is not None and \
                     self.down is not None:
 
-                raw = await asyncio.create_task(
-                    self.__api.read([self.up, self.down]))
+                raw = self.__api.read([self.up, self.down])
             else:
-                raw = await asyncio.create_task(
-                    self.__api.read([self.id]))
+                raw = self.__api.read([self.id])
 
             self.set_value(raw)
 
@@ -154,6 +149,6 @@ class ApiResource:
             return True
         else:
             # if not then try to observer
-            value = self.pool.submit(asyncio.run, self.observe()).result()
+            value = self.observe()
         # when the result is None then the device is not available
         return False if value[self.id] is None else True

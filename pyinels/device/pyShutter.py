@@ -30,9 +30,9 @@ MAX_RANGE = RANGE_BLIND[1]
 class pyShutter(pyBase):
     """Inels class shutter."""
 
-    async def __init__(self, device):
+    def __init__(self, device):
         """Initialize shutter."""
-        await super().__init__(device)
+        super().__init__(device)
         # self._timer = pyTimer()
         # self.__time_to_stop = 0
         # self.__last_position = MAX_RANGE
@@ -135,38 +135,38 @@ class pyShutter(pyBase):
 
     #     return int(self.__last_position)
 
-    async def pull_up(self, stop_after=None):
+    def pull_up(self, stop_after=None):
         """Turn up the shutter."""
         # self.__set_time_to_stop(stop_after)
         # self._timer.start(self.__time_to_stop)
 
-        await self.__call_service(DIRECTIONS_DICT.get(ATTR_UP))
+        self.__call_service(DIRECTIONS_DICT.get(ATTR_UP))
 
-    async def pull_down(self, stop_after=None):
+    def pull_down(self, stop_after=None):
         """ Turn down the shutter."""
         # self.__set_time_to_stop(stop_after)
         # self._timer.start(self.__time_to_stop)
 
-        await self.__call_service(DIRECTIONS_DICT.get(ATTR_DOWN))
+        self.__call_service(DIRECTIONS_DICT.get(ATTR_DOWN))
 
-    async def stop(self):
+    def stop(self):
         """ Stop the shutter."""
         # if self._timer.is_running:
         #     self._timer.stop()
 
-        await self.__call_service(DIRECTIONS_DICT.get(ATTR_STOP))
+        self.__call_service(DIRECTIONS_DICT.get(ATTR_STOP))
 
-    async def __call_service(self, direction):
+    def __call_service(self, direction):
         """Internal call of the device write value."""
 
         if direction == DIRECTIONS_DICT.get(ATTR_STOP):
-            await self._device.write_value(self.__set_value(
+            self._device.write_value(self.__set_value(
                 ATTR_SWITCH_OFF, ATTR_SWITCH_OFF))
         elif direction == DIRECTIONS_DICT.get(ATTR_UP):
-            await self._device.write_value(self.__set_value(
+            self._device.write_value(self.__set_value(
                 ATTR_SWITCH_OFF, ATTR_SWITCH_ON))
         elif direction == DIRECTIONS_DICT.get(ATTR_DOWN):
-            await self._device.write_value(self.__set_value(
+            self._device.write_value(self.__set_value(
                 ATTR_SWITCH_ON, ATTR_SWITCH_OFF))
 
     def __set_value(self, down, up):

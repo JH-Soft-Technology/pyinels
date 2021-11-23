@@ -15,7 +15,7 @@ from pyinels.api import Api
 from pyinels.device.pySwitch import pySwitch
 
 from unittest.mock import patch
-from unittest import async_case
+from unittest import TestCase
 
 SWITCH_ID = "ZAS_13A_Loznice"
 SWITCH_NAME = "Zas loznice"
@@ -24,7 +24,7 @@ SWITCH_RETURN_OFF = {SWITCH_ID: 0}
 SWITCH_RETURN_ON = {SWITCH_ID: 1}
 
 
-class PySwitchTest(async_case.IsolatedAsyncioTestCase):
+class PySwitchTest(TestCase):
     """Class to test iNels switch library."""
 
     def setUp(self):
@@ -43,13 +43,11 @@ class PySwitchTest(async_case.IsolatedAsyncioTestCase):
             p.start()
 
         self.api = Api(TEST_HOST, TEST_PORT, TEST_VERSION)
-
-    async def asyncSetUp(self):
         """Setup all neccessary async stuff."""
-        switches = [device for device in await self.api.getRoomDevices(
+        switches = [device for device in self.api.getRoomDevices(
             'garage') if device.type == ATTR_SWITCH]
 
-        self.switch = await pySwitch(switches[0])
+        self.switch = pySwitch(switches[0])
 
     def tearDown(self):
         """Destroy all instances and mocks."""
@@ -58,11 +56,11 @@ class PySwitchTest(async_case.IsolatedAsyncioTestCase):
         patch.stopall()
         self.patches = None
 
-    async def test_state(self):
+    def test_state(self):
         """Test the state of the pySwitch."""
         s = self.switch
 
-        await s.update()
+        s.update()
         # the switch at the beggining should be turned off
         self.assertFalse(s.state)
 
@@ -76,32 +74,32 @@ class PySwitchTest(async_case.IsolatedAsyncioTestCase):
         self.assertEqual(s.unique_id, SWITCH_ID)
         self.assertEqual(s.name, SWITCH_NAME)
 
-    async def test_turn_on(self):
+    def test_turn_on(self):
         """Test turn on the switch."""
         s = self.switch
 
-        await s.update()
+        s.update()
         self.assertFalse(s.state)
 
         with patch.object(self.api, TEST_API_READ_DATA,
                           return_value=SWITCH_RETURN_ON):
-            await s.turn_on()
+            s.turn_on()
 
-            await s.update()
+            s.update()
             self.assertTrue(s.state)
 
-    async def test_turn_off(self):
+    def test_turn_off(self):
         """Test turn off the switch."""
         s = self.switch
 
         with patch.object(self.api, TEST_API_READ_DATA,
                           return_value=SWITCH_RETURN_ON):
-            await s.turn_on()
+            s.turn_on()
 
-            await s.update()
+            s.update()
             self.assertTrue(s.state)
 
-        await s.turn_off()
+        s.turn_off()
 
-        await s.update()
+        s.update()
         self.assertFalse(s.state)

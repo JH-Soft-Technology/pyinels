@@ -17,21 +17,21 @@ from pyinels.const import (
 class pyDoor(pyBase):
     """Inels class based on InelsDevice."""
 
-    async def __init__(self, device):
+    def __init__(self, device):
         """Initialize pyDoor class."""
-        await super().__init__(device)
+        super().__init__(device)
 
-    async def turn_off(self,):
+    def turn_off(self,):
         """Trigger impoulse button. Write 1 to device and then 0 back."""
-        await self._device.write_value(ATTR_SWITCH_ON)
+        self._device.write_value(ATTR_SWITCH_ON)
         sleep(2)  # delay to be sure that the pulse was sent
-        await self._device.write_value(ATTR_SWITCH_OFF)
+        self._device.write_value(ATTR_SWITCH_OFF)
 
-    async def turn_on(self,):
+    def turn_on(self,):
         """Same as turn off."""
-        await self.turn_off()
+        self.turn_off()
 
-    async def update(self):
+    def update(self):
         """Does not have any sens due to the pulse behavior."""
         return 0
 
