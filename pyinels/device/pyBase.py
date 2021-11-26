@@ -9,12 +9,6 @@ from pyinels.const import (
 class pyBase:
     """Inels base class."""
 
-    def __new__(cls, *a, **kw):
-        """Create new instance of object for async."""
-        instance = super().__new__(cls)
-        instance.__init__(*a, **kw)
-        return instance
-
     def __init__(self, device):
         """Initialize object."""
         self._device = device
