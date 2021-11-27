@@ -12,7 +12,6 @@ class pyBase:
     def __init__(self, device):
         """Initialize object."""
         self._device = device
-        self._device.observe()
 
     @property
     def state(self):

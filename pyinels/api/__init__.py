@@ -160,7 +160,10 @@ class Api:
 
                     obj = self.__recognizeAndSetUniqueIdToDevice(obj)
 
-                    devices.append(Device(obj, self))
+                    device = Device(obj, self)
+                    device.observe()
+
+                    devices.append(device)
 
         return devices
 
