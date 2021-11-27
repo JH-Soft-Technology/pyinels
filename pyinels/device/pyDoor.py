@@ -21,13 +21,13 @@ class pyDoor(pyBase):
         """Initialize pyDoor class."""
         super().__init__(device)
 
-    def turn_off(self,):
+    def turn_off(self):
         """Trigger impoulse button. Write 1 to device and then 0 back."""
         self._device.write_value(ATTR_SWITCH_ON)
         sleep(2)  # delay to be sure that the pulse was sent
         self._device.write_value(ATTR_SWITCH_OFF)
 
-    def turn_on(self,):
+    def turn_on(self):
         """Same as turn off."""
         self.turn_off()
 
