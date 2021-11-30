@@ -52,6 +52,9 @@ class Api:
     @property
     def devices(self):
         """Loaded devices by getAllDevices."""
+        if self.__devices is None:
+            self.__devices = self.getAllDevices()
+
         return self.__devices
 
     def set_devices(self, devices):
@@ -115,7 +118,7 @@ class Api:
 
     def fetch_all_devices(self):
         """Fetch all devices data."""
-        if len(self.__devices) > 0:
+        if self.__devices is not None and len(self.__devices) > 0:
             dev_ids = []
 
             for dev in self.__devices:
