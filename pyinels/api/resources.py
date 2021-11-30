@@ -115,7 +115,7 @@ class ApiResource:
         self.__api = api
         self.__value = None
 
-    def observe(self):
+    def get_value(self):
         """Read the current value of the device."""
         try:
             raw = None
@@ -149,6 +149,6 @@ class ApiResource:
             return True
         else:
             # if not then try to observer
-            value = self.observe()
+            value = self.get_value()
         # when the result is None then the device is not available
         return False if value[self.id] is None else True

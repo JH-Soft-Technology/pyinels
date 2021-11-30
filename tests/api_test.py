@@ -127,10 +127,10 @@ class ApiTest(TestCase):
                 device_value = self.api.read([device.id])
                 self.assertEqual(device_value, LIGHT_RETURN_OFF)
 
-    @patch(f'{TEST_API_NAMESPACE}.resources.ApiResource.observe')
-    def test_not_duplicit_entries(self, mock_method_observe):
+    @patch(f'{TEST_API_NAMESPACE}.resources.ApiResource.get_value')
+    def test_not_duplicit_entries(self, mock_method_get_value):
         """Test duplicit entries inside of device list."""
-        mock_method_observe.return_value = 0
+        mock_method_get_value.return_value = 0
 
         with patch.object(self.api, 'ping', return_value=True):
             with patch.object(self.api, TEST_API_ROOM_DEVICES,

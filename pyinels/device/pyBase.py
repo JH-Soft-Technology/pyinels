@@ -66,7 +66,7 @@ class pyBase:
 
     def update(self):
         """Update data on the device."""
-        return self._device.observe()
+        return self._device.get_value()
 
     def __repr__(self):
         """Object representation."""
