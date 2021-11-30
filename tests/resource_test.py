@@ -70,19 +70,19 @@ class ResourceTest(TestCase):
         self.assertEqual(TEST_RESOURCE_SWITCH['inels'], res.id)
         self.assertEqual(TEST_RESOURCE_SWITCH['name'], res.title)
         self.assertEqual(TEST_RESOURCE_SWITCH['read_only'], res.read_only)
-        # should be none, because it does not get the observe
+        # should be none, because it does not get the get_value
         self.assertIsNone(res.value)
 
     @patch(f'{TEST_API_CLASS_NAMESPACE}.read')
-    def test_observe(self, mock_room_devices):
-        """Test the observe method of the Api resources. It should touche
+    def test_get_value(self, mock_room_devices):
+        """Test the get_value method of the Api resources. It should touche
         the iNels BUS."""
         mock_room_devices.return_value = GARAGE_CLOSE
 
         self.assertEqual(len(self.res_list), 1)
         self.assertEqual(self.garage_door.title, GARAGE_NAME)
 
-        door = self.garage_door.observe()
+        door = self.garage_door.get_value()
         value = door[self.garage_door.id]
 
         self.assertEqual(value, 0)

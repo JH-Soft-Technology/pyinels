@@ -109,7 +109,37 @@ class Api:
                 if is_in is False:
                     devices.append(room_dev)
 
+        self.set_devices(devices)
+
         return devices
+
+    def fetch_all_devices(self):
+        """Fetch all devices data."""
+        if len(self.__devices) > 0:
+            dev_ids = []
+
+            for dev in self.__devices:
+                # shutters has composed ids, and inels dont have any
+                # for them so we need to use up and down identifiers instead
+                if dev.up is not None and dev.down is not None:
+                    dev_ids.append(dev.up)
+                    dev_ids.append(dev.down)
+                else:
+                    dev_ids.append(dev.id)
+
+            data_values = self.read(dev_ids)
+
+            # rerender data on all devices
+            for dev in self.__devices:
+                if dev.up is not None and dev.down is not None:
+                    dev.set_value([data_values[dev.up], data_values[dev.down]])
+                else:
+                    dev.set_value({f'{dev.id}': f'{data_values[dev.id]}'})
+
+            # return list of ids and actual data states
+            return data_values
+
+        return None
 
     def read(self, device_ids):
         """Get the value from the proxy by device id."""
@@ -161,7 +191,7 @@ class Api:
                     obj = self.__recognizeAndSetUniqueIdToDevice(obj)
 
                     device = Device(obj, self)
-                    device.observe()
+                    device.get_value()
 
                     devices.append(device)
 
@@ -201,6 +231,6 @@ class Api:
 
         return raw_device
 
-    def __readDeviceData(self, device_names):
+    def __readDeviceData(self, device_ids):
         """Reading devices data from proxy."""
-        return self.proxy.read(device_names)
+        return self.proxy.read(device_ids)
