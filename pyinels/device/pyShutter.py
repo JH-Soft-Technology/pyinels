@@ -161,15 +161,15 @@ class pyShutter(pyBase):
         """Internal call of the device write value."""
 
         if direction == DIRECTIONS_DICT.get(ATTR_STOP):
-            self._current_possition = STATE_CLOSED
+            self._current_possition = 50
             self._device.write_value(self.__set_value(
                 ATTR_SWITCH_OFF, ATTR_SWITCH_OFF))
         elif direction == DIRECTIONS_DICT.get(ATTR_UP):
-            self._current_possition = STATE_OPENING
+            self._current_possition = 100
             self._device.write_value(self.__set_value(
                 ATTR_SWITCH_OFF, ATTR_SWITCH_ON))
         elif direction == DIRECTIONS_DICT.get(ATTR_DOWN):
-            self._current_possition = STATE_CLOSING
+            self._current_possition = 0
             self._device.write_value(self.__set_value(
                 ATTR_SWITCH_ON, ATTR_SWITCH_OFF))
 
