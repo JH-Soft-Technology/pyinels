@@ -95,6 +95,11 @@ class pyShutter(pyBase):
         """Current position of the shutter."""
         return self._current_possition
 
+    @property
+    def value(self):
+        """Overrided value, becuase shutter has two values in one."""
+        return self._device.value
+
     #     # It is calculated from the time to close the shutter,
     #     # defined with pull up or pull down fnc called.
     #     # 0 - fully closed - MIN_RANGE

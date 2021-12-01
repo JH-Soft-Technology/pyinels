@@ -135,7 +135,10 @@ class Api:
             # rerender data on all devices
             for dev in self.__devices:
                 if dev.up is not None and dev.down is not None:
-                    dev.set_value([data_values[dev.up], data_values[dev.down]])
+                    dev.set_value({
+                        f'{dev.down}': data_values[dev.up],
+                        f'{dev.up}': data_values[dev.down]
+                    })
                 else:
                     dev.set_value({f'{dev.id}': f'{data_values[dev.id]}'})
 
