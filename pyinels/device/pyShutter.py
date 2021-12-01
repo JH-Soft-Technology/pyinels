@@ -10,6 +10,7 @@ from pyinels.const import (
     ATTR_SWITCH_OFF,
     DIRECTIONS_DICT,
     RANGE_BLIND,
+    STATE_CLOSED,
     SUPPORT_OPEN,
     SUPPORT_CLOSE,
     SUPPORT_SET_POSITION,
@@ -33,6 +34,7 @@ class pyShutter(pyBase):
     def __init__(self, device):
         """Initialize shutter."""
         super().__init__(device)
+        self._current_possition = STATE_CLOSED
         # self._timer = pyTimer()
         # self.__time_to_stop = 0
         # self.__last_position = MAX_RANGE
@@ -88,9 +90,11 @@ class pyShutter(pyBase):
             | SUPPORT_CLOSE_TILT \
             | SUPPORT_STOP_TILT
 
-    # @property
-    # def current_position(self):
-    #     """Current position of the shutter."""
+    @property
+    def current_position(self) -> int:
+        """Current position of the shutter."""
+        return self._current_possition
+
     #     # It is calculated from the time to close the shutter,
     #     # defined with pull up or pull down fnc called.
     #     # 0 - fully closed - MIN_RANGE
@@ -139,33 +143,33 @@ class pyShutter(pyBase):
         """Turn up the shutter."""
         # self.__set_time_to_stop(stop_after)
         # self._timer.start(self.__time_to_stop)
-
         self.__call_service(DIRECTIONS_DICT.get(ATTR_UP))
 
     def pull_down(self, stop_after=None):
         """ Turn down the shutter."""
         # self.__set_time_to_stop(stop_after)
         # self._timer.start(self.__time_to_stop)
-
         self.__call_service(DIRECTIONS_DICT.get(ATTR_DOWN))
 
     def stop(self):
         """ Stop the shutter."""
         # if self._timer.is_running:
         #     self._timer.stop()
-
         self.__call_service(DIRECTIONS_DICT.get(ATTR_STOP))
 
     def __call_service(self, direction):
         """Internal call of the device write value."""
 
         if direction == DIRECTIONS_DICT.get(ATTR_STOP):
+            self._current_possition = STATE_CLOSED
             self._device.write_value(self.__set_value(
                 ATTR_SWITCH_OFF, ATTR_SWITCH_OFF))
         elif direction == DIRECTIONS_DICT.get(ATTR_UP):
+            self._current_possition = STATE_OPENING
             self._device.write_value(self.__set_value(
                 ATTR_SWITCH_OFF, ATTR_SWITCH_ON))
         elif direction == DIRECTIONS_DICT.get(ATTR_DOWN):
+            self._current_possition = STATE_CLOSING
             self._device.write_value(self.__set_value(
                 ATTR_SWITCH_ON, ATTR_SWITCH_OFF))
 
