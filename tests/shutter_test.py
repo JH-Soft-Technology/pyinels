@@ -10,9 +10,9 @@ from pyinels.device.pyShutter import pyShutter
 
 from pyinels.const import (
     ATTR_SHUTTER,
-    # STATE_CLOSED,
-    STATE_CLOSING,
+    STATE_CLOSED,
     STATE_OPEN,
+    STATE_CLOSING,
     STATE_OPENING
 )
 
@@ -29,8 +29,6 @@ from tests.const_test import (
     TEST_SHUTTER_ID,
     TEST_SHUTTER_NAME,
     TEST_RETURN_RESOURCE_SHUTTER,
-    TEST_RETURN_RESOURCE_SHUTTER_UP,
-    TEST_RETURN_RESOURCE_SHUTTER_DOWN
 )
 
 
@@ -78,9 +76,45 @@ class PyShutterTest(TestCase):
         shutt = self.shutter
 
         shutt.update()
-        # the shutter at the beggining should be none. There will be
+        # the shutter at the beggining should be open. There will be
         # calibration
         self.assertIs(shutt.state, STATE_OPEN)
+
+    def test_opening(self):
+        """Check up and down when opening."""
+        shutt = self.shutter
+
+        shutt.pull_up()
+
+        self.assertEqual(shutt.up, 1)
+        self.assertEqual(shutt.down, 0)
+        self.assertEqual(shutt.current_position, 100)
+        self.assertEqual(shutt.state, STATE_OPENING)
+
+        shutt.stop()
+
+        self.assertEqual(shutt.up, 0)
+        self.assertEqual(shutt.down, 0)
+        self.assertEqual(shutt.current_position, 50)
+        self.assertEqual(shutt.state, STATE_OPEN)
+
+    def test_closing(self):
+        """Check up and down when closing."""
+        shutt = self.shutter
+
+        shutt.pull_down()
+
+        self.assertEqual(shutt.up, 0)
+        self.assertEqual(shutt.down, 1)
+        self.assertEqual(shutt.current_position, 0)
+        self.assertEqual(shutt.state, STATE_CLOSING)
+
+        shutt.stop()
+
+        self.assertEqual(shutt.up, 0)
+        self.assertEqual(shutt.down, 0)
+        self.assertEqual(shutt.current_position, 50)
+        self.assertEqual(shutt.state, STATE_CLOSED)
 
     def test_unique_id_and_name_presented(self):
         """Test when the unique id is presented."""
@@ -91,99 +125,3 @@ class PyShutterTest(TestCase):
 
         self.assertEqual(shutt.unique_id, TEST_SHUTTER_ID)
         self.assertEqual(shutt.name, TEST_SHUTTER_NAME)
-
-    def test_full_opening(self):
-        """Test full open shutter."""
-        shutt = self.shutter
-
-        shutt.pull_up()
-
-        with patch.object(self.api, TEST_API_READ_DATA,
-                          return_value=TEST_RETURN_RESOURCE_SHUTTER_UP):
-
-            # self.assertFalse(shutt.should_stop)
-            self.assertEqual(shutt.state, STATE_OPENING)
-
-            # asyncio.sleep(1)
-            # self.assertFalse(shutt.should_stop)
-            # self.assertEqual(shutt.state, STATE_OPENING)
-
-            # asyncio.sleep(1)
-            # self.assertTrue(shutt.should_stop)
-            # self.assertEqual(shutt.state, STATE_OPEN)
-
-    def test_full_close(self):
-        """Test to full close the shutter."""
-        shutt = self.shutter
-
-        shutt.pull_down()
-
-        with patch.object(self.api, TEST_API_READ_DATA,
-                          return_value=TEST_RETURN_RESOURCE_SHUTTER_DOWN):
-
-            # self.assertFalse(shutt.should_stop)
-            self.assertEqual(shutt.state, STATE_CLOSING)
-
-            # asyncio.sleep(1)
-            # self.assertFalse(shutt.should_stop)
-            # self.assertEqual(shutt.state, STATE_CLOSING)
-
-            # asyncio.sleep(1)
-            # self.assertTrue(shutt.should_stop)
-            # self.assertEqual(shutt.state, STATE_CLOSED)
-
-    # async def test_current_position_closing(self):
-    #     """Testing current poistion of the shutter for closing."""
-    #     shutt = self.shutter
-
-    #     # initial state is fully opened so it means 100%
-    #     await shutt.pull_down(3)
-    #     asyncio.sleep(1)
-
-    #     with patch.object(self.api, TEST_API_READ_DATA,
-    #                       return_value=TEST_RETURN_RESOURCE_SHUTTER_DOWN):
-    #         self.assertIs(shutt.current_position, 67)
-
-    #     asyncio.sleep(1)
-
-    #     with patch.object(self.api, TEST_API_READ_DATA,
-    #                       return_value=TEST_RETURN_RESOURCE_SHUTTER_DOWN):
-    #         self.assertIs(shutt.current_position, 34)
-
-    #     asyncio.sleep(1)
-
-    #     with patch.object(self.api, TEST_API_READ_DATA,
-    #                       return_value=TEST_RETURN_RESOURCE_SHUTTER_DOWN):
-    #         self.assertIs(shutt.current_position, 0)
-
-    # async def test_current_position_opening(self):
-    #     """Test current position of the sutter for opening."""
-
-    #     shutt = self.shutter
-
-    #     # initial state is fully opened so it means 100%
-    #     await shutt.pull_down(0)
-    #     asyncio.sleep(1)
-
-    #     with patch.object(self.api, TEST_API_READ_DATA,
-    #                       return_value=TEST_RETURN_RESOURCE_SHUTTER_DOWN):
-    #         self.assertIs(shutt.current_position, 0)
-
-    #     await shutt.pull_up(3)
-    #     asyncio.sleep(1)
-
-    #     with patch.object(self.api, TEST_API_READ_DATA,
-    #                       return_value=TEST_RETURN_RESOURCE_SHUTTER_DOWN):
-    #         self.assertIs(shutt.current_position, 33)
-
-    #     asyncio.sleep(1)
-
-    #     with patch.object(self.api, TEST_API_READ_DATA,
-    #                       return_value=TEST_RETURN_RESOURCE_SHUTTER_DOWN):
-    #         self.assertIs(shutt.current_position, 66)
-
-    #     asyncio.sleep(1)
-
-    #     with patch.object(self.api, TEST_API_READ_DATA,
-    #                       return_value=TEST_RETURN_RESOURCE_SHUTTER_DOWN):
-    #         self.assertIs(shutt.current_position, 100)
