@@ -136,8 +136,8 @@ class Api:
             for dev in self.__devices:
                 if dev.up is not None and dev.down is not None:
                     dev.set_value({
-                        f'{dev.down}': data_values[dev.up],
-                        f'{dev.up}': data_values[dev.down]
+                        f'{dev.down}': data_values[dev.down],
+                        f'{dev.up}': data_values[dev.up]
                     })
                 else:
                     dev.set_value({f'{dev.id}': f'{data_values[dev.id]}'})
