@@ -99,7 +99,16 @@ class pyShutter(pyBase):
         self._previous_state = self._device.value
 
         if direction == DIRECTIONS_DICT.get(ATTR_STOP):
-            self._current_possition = 50
+            prev_up = self._previous_state[self._device.up]
+            prev_down = self._previous_state[self._device.down]
+            # when previous up state is
+            self._current_possition = (0 if prev_down == 1
+                                       and prev_up == 0
+                                       else 100
+                                       if prev_down == 0
+                                       and prev_up == 1
+                                       else 0)
+
             self._device.write_value(self.__set_value(
                 ATTR_SWITCH_OFF, ATTR_SWITCH_OFF))
         elif direction == DIRECTIONS_DICT.get(ATTR_UP):

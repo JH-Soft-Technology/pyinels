@@ -95,7 +95,7 @@ class PyShutterTest(TestCase):
 
         self.assertEqual(shutt.up, 0)
         self.assertEqual(shutt.down, 0)
-        self.assertEqual(shutt.current_position, 50)
+        self.assertEqual(shutt.current_position, 100)
         self.assertEqual(shutt.state, STATE_OPEN)
 
     def test_closing(self):
@@ -113,7 +113,7 @@ class PyShutterTest(TestCase):
 
         self.assertEqual(shutt.up, 0)
         self.assertEqual(shutt.down, 0)
-        self.assertEqual(shutt.current_position, 50)
+        self.assertEqual(shutt.current_position, 0)
         self.assertEqual(shutt.state, STATE_CLOSED)
 
     def test_unique_id_and_name_presented(self):

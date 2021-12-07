@@ -2,6 +2,7 @@
 
 TEST_API_READ_DATA = "_Api__readDeviceData"
 TEST_API_ROOM_DEVICES = "getRoomDevicesRaw"
+TEST_API_FETCH_ALL_DEVICES = "fetch_all_devices"
 
 TEST_API_NAMESPACE = "pyinels.api"
 TEST_API_CLASS_NAMESPACE = "pyinels.api.Api"
@@ -96,8 +97,7 @@ garage:
 name="Vrata" column="0" inels="Vrata_Garaz" read_only="no" row="1"
 """
 
-TEST_RAW_SHUTTER = """
-shutters:
+TEST_RAW_SHUTTER = """shutters:
 name="Zal OB" column="0" down="Z_Obk_do" read_only="no" up="ZAL__ahor" row="3"
 """
 

@@ -1,5 +1,6 @@
 """Api testing of pyInels library."""
 from pyinels.api import Api
+from pyinels.device.pyShutter import pyShutter
 
 from pyinels.exception import ApiException
 from tests.const_test import (
@@ -11,8 +12,10 @@ from tests.const_test import (
     TEST_PORT,
     TEST_RAW_LIGHT,
     TEST_RAW_DUPLICIT_DEVICES,
+    TEST_RETURN_RESOURCE_SHUTTER_UP,
     TEST_ROOMS,
-    TEST_VERSION
+    TEST_VERSION,
+    TEST_RAW_SHUTTER
 )
 
 from unittest.mock import patch, Mock
@@ -145,3 +148,30 @@ class ApiTest(TestCase):
 
                         self.assertEqual(len(devices), 48)
                         self.assertGreater(len(obj_list), len(devices))
+
+    @patch(f'{TEST_API_NAMESPACE}.resources.ApiResource.get_value')
+    def test_fetch_all_data_sutters(self, mocked):
+        """Testing all data fetch from inels."""
+        mocked.return_value = TEST_RETURN_RESOURCE_SHUTTER_UP
+
+        with patch.object(self.api, 'ping', return_value=True):
+            with patch.object(self.api, TEST_API_ROOM_DEVICES,
+                              return_value=TEST_RAW_SHUTTER):
+                obj_list = self.api.getRoomDevices('room')
+
+                with patch.object(self.api, "getRooms",
+                                  return_value=["room"]):
+                    with patch.object(self.api, "getRoomDevices",
+                                      return_value=obj_list):
+                        devices = self.api.getAllDevices()
+
+                        with patch.object(self.api, "read",
+                                          return_value=mocked.return_value):
+                            shutt = pyShutter(devices[0])
+
+                            with patch.object(self.api, "write",
+                                              return_value=None):
+                                shutt.pull_up()
+
+                                fetch = self.api.fetch_all_devices()
+                                self.assertEqual(shutt.value, fetch)
