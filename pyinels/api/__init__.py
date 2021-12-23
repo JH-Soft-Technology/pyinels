@@ -8,9 +8,11 @@ from pyinels.const import (
     ATTR_DOWN,
     ATTR_GROUP,
     ATTR_ID,
+    ATTR_UNKNOWN,
     ATTR_SHUTTER,
     ATTR_TEMP,
     ATTR_THERM,
+    ATTR_TITLE,
     ATTR_TYPE,
     ATTR_UP,
     DEVICE_TYPE_DICT,
@@ -192,7 +194,8 @@ class Api:
                         obj[frag[0]] = frag[1].replace("\"", " ").strip()
 
                     obj[INELS_BUS_ATTR_DICT
-                        .get(ATTR_TYPE)] = DEVICE_TYPE_DICT.get(d_type)
+                        .get(ATTR_TYPE)] = DEVICE_TYPE_DICT.get(
+                            d_type, "unknown")
 
                     obj = self.__recognizeAndSetUniqueIdToDevice(obj)
 
@@ -223,12 +226,20 @@ class Api:
 
             return dev
 
+        def set_not_known_id_from_name(dev):
+            """Set the id to the not know device from name."""
+            name = dev[INELS_BUS_ATTR_DICT.get(ATTR_TITLE)].replace(" ", "_")
+            dev[INELS_BUS_ATTR_DICT.get(ATTR_ID)] = name
+
+            return dev
+
         # use a switch to create identifier inside of the raw data
         # from usefull attributes
         if INELS_BUS_ATTR_DICT.get(ATTR_ID) not in raw_device:
             switcher = {
                 ATTR_SHUTTER: partial(set_shutter_id, raw_device),
-                ATTR_THERM: partial(set_therm_id, raw_device)
+                ATTR_THERM: partial(set_therm_id, raw_device),
+                ATTR_UNKNOWN: partial(set_not_known_id_from_name, raw_device)
             }
 
             fnc = switcher.get(raw_device[INELS_BUS_ATTR_DICT.get(ATTR_TYPE)])

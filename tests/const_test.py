@@ -97,6 +97,11 @@ garage:
 name="Vrata" column="0" inels="Vrata_Garaz" read_only="no" row="1"
 """
 
+TEST_RAW_SCENE = """
+scenes:
+name="start irrigation immediately" column="0" row="2" abs_path="/etc/imm/scripts/irrigate_immediately.py"
+""" # noqa E501
+
 TEST_RAW_SHUTTER = """shutters:
 name="Zal OB" column="0" down="Z_Obk_do" read_only="no" up="ZAL__ahor" row="3"
 """
