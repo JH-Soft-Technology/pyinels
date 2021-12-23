@@ -22,6 +22,7 @@ ATTR_DOOR = "door"
 ATTR_SHUTTER = "shutter"
 ATTR_HEATING = "heating"
 ATTR_THERM = "therm"
+ATTR_UNKNOWN = "unknown"
 
 # Device types dictionary with all determined typs translated to better
 # understand
@@ -46,7 +47,7 @@ INELS_BUS_ATTR_DICT = {
     "Down": "down",
     "Up": "up",
     "Read_only": "read_only",
-    "Group": "group"
+    "Group": "group",
 }
 
 DIRECTIONS_DICT = {
@@ -79,4 +80,4 @@ STATE_OPENING = "opening"
 STATE_CLOSED = "closed"
 STATE_CLOSING = "closing"
 
-VERSION = "0.6.10"
+VERSION = "0.6.11"

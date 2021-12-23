@@ -15,7 +15,8 @@ from tests.const_test import (
     TEST_RETURN_RESOURCE_SHUTTER_UP,
     TEST_ROOMS,
     TEST_VERSION,
-    TEST_RAW_SHUTTER
+    TEST_RAW_SHUTTER,
+    TEST_RAW_SCENE
 )
 
 from unittest.mock import patch, Mock
@@ -175,3 +176,21 @@ class ApiTest(TestCase):
 
                                 fetch = self.api.fetch_all_devices()
                                 self.assertEqual(shutt.value, fetch)
+
+    @patch(f'{TEST_API_NAMESPACE}.resources.ApiResource.get_value')
+    def test_create_unknown_device(self, mocked):
+        """Testing not known device were created by API."""
+        mocked.return_value = TEST_RETURN_RESOURCE_SHUTTER_UP
+
+        with patch.object(self.api, 'ping', return_value=True):
+            with patch.object(self.api, TEST_API_ROOM_DEVICES,
+                              return_value=TEST_RAW_SCENE):
+                obj_list = self.api.getRoomDevices('room')
+
+                with patch.object(self.api, "getRooms", return_value=["room"]):
+
+                    with patch.object(self.api, "getRoomDevices",
+                                      return_value=obj_list):
+                        devices = self.api.getAllDevices()
+
+                        self.assertEqual(1, len(devices))
