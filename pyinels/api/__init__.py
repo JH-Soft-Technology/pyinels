@@ -206,11 +206,6 @@ class Api:
 
                         devices.append(device)
 
-                    device = Device(obj, self)
-                    device.get_value()
-
-                    devices.append(device)
-
         return devices
 
     def __recognizeAndSetUniqueIdToDevice(self, raw_device):
