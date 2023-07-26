@@ -199,6 +199,13 @@ class Api:
 
                     obj = self.__recognizeAndSetUniqueIdToDevice(obj)
 
+                    if(obj['type'] != 'unknown'):
+                    
+                        device = Device(obj, self)
+                        device.get_value()
+
+                        devices.append(device)
+
                     device = Device(obj, self)
                     device.get_value()
 
