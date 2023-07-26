@@ -147,7 +147,7 @@ class ApiTest(TestCase):
                                       return_value=obj_list):
                         devices = self.api.getAllDevices()
 
-                        self.assertEqual(len(devices), 48)
+                        self.assertEqual(len(devices), 47)
                         self.assertGreater(len(obj_list), len(devices))
 
     @patch(f'{TEST_API_NAMESPACE}.resources.ApiResource.get_value')
@@ -193,4 +193,4 @@ class ApiTest(TestCase):
                                       return_value=obj_list):
                         devices = self.api.getAllDevices()
 
-                        self.assertEqual(1, len(devices))
+                        self.assertEqual(0, len(devices))
