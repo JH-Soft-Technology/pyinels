@@ -11,13 +11,13 @@ pool:
 strategy:
   matrix:
     Python38:
-      python.version: '3.9.2'
+      python.version: '3.9'
 
 steps:
 - task: UsePythonVersion@0
   inputs:
-    versionSpec: '3.9.2'
-  displayName: 'Use Python 3.9.2'
+    versionSpec: '3.9'
+  displayName: 'Use Python 3.9'
 
 - script: |
     python -m pip install tox
