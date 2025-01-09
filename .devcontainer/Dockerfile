@@ -4,7 +4,7 @@
 ARG VARIANT="3.9"
 
 #FROM mcr.microsoft.com/vscode/devcontainers/python:0-${VARIANT}
-FROM python:3.9.2-alpine3.13 as base
+FROM python:3.9-alpine as base
 
 # [Option] Install Node.js
 # ARG INSTALL_NODE="true"
