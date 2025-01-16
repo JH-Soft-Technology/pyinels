@@ -177,12 +177,13 @@ name="VZT ST 3" column="2" inels="VZT_Rychlost_3" read_only="no" row="0"
 """
 
 TEST_RAW_AIRING = """airing:
-name="Technicka" column="0" inels="RE12_VT_technicka" read_only="no" row="1"
+name="Equipment_room" column="0" inels="RE12_VT_equipment_room" \
+read_only="no" row="1"
 name="Pivnica 1" column="3" inels="RE10_VT_pivnica" read_only="no" row="1"
 """
 
 TEST_RAW_METER = """meter:
-name="Vlhkost pivnica" inels="Humidity_pivnic" min_disp="0" column="1" \
+name="Humidity cellar" inels="Humidity_cellar" min_disp="0" column="1" \
 koef_mult="1.0" max_disp="100" decimal_digits="1" koef_add="0.0" \
 units="%" row="1"
 name="Teplota pivnica" inels="Therm_pivnica" min_disp="0" column="2" \

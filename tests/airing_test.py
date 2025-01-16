@@ -17,8 +17,8 @@ from pyinels.device.pyAiring import pyAiring
 from unittest.mock import patch
 from unittest import TestCase
 
-AIRING_ID = "RE12_VT_technicka"
-AIRING_NAME = "Technicka"
+AIRING_ID = "RE12_VT_equipment_room"
+AIRING_NAME = "Equipment_room"
 
 AIRING_RETURN_OFF = {AIRING_ID: 0}
 AIRING_RETURN_ON = {AIRING_ID: 1}

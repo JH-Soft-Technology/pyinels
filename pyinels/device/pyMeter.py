@@ -3,14 +3,13 @@
 from pyinels.device.pyBase import pyBase
 
 from pyinels.const import (
-    UNITS_DICT
+    UNITS_DICT,
+    ERROR_VALUE
 )
-
-ERROR_VALUE = -1
 
 
 class pyMeter(pyBase):
-    """Inels class based on InelsDevice."""
+    """Meter class based on InelsDevice."""
 
     def __init__(self, device):
         """Initialize object."""

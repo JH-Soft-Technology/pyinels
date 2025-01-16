@@ -4,7 +4,7 @@ from pyinels.device.pyBase import pyBase
 
 
 class pyAiring(pyBase):
-    """Switch class based on InelsDevice."""
+    """Airing class based on InelsDevice."""
 
     def __init__(self, device):
         """Initialize pyAiring class."""

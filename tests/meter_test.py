@@ -17,8 +17,8 @@ from pyinels.device.pyMeter import pyMeter
 from unittest.mock import patch
 from unittest import TestCase
 
-HUMIDITY_METER_ID = "Humidity_pivnic"
-HUMIDITY_METER_NAME = "Vlhkost pivnica"
+HUMIDITY_METER_ID = "Humidity_cellar"
+HUMIDITY_METER_NAME = "Humidity cellar"
 HUMIDITY_METER_UNITS = "Percentage"
 HUMIDITY_METER_RETURN_VALUE = {HUMIDITY_METER_ID: 48.56}
 
