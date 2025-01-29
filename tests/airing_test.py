@@ -1,4 +1,4 @@
-"""Unit testing of iNels switch library."""
+"""Unit testing of iNels airing library."""
 from pyinels.const import ATTR_AIRING
 
 from tests.const_test import (

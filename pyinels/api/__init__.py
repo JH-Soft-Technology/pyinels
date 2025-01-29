@@ -229,14 +229,7 @@ class Api:
 
             return dev
 
-        def set_not_known_id_from_name(dev):
-            """Set the id to the not know device from name."""
-            name = dev[INELS_BUS_ATTR_DICT.get(ATTR_TITLE)].replace(" ", "_")
-            dev[INELS_BUS_ATTR_DICT.get(ATTR_ID)] = name
-
-            return dev
-
-        def set_scene_id(dev):
+        def set_by_name(dev):
             """Set the id to the not know device from name."""
             name = dev[INELS_BUS_ATTR_DICT.get(ATTR_TITLE)].replace(" ", "_")
             dev[INELS_BUS_ATTR_DICT.get(ATTR_ID)] = name
@@ -249,8 +242,8 @@ class Api:
             switcher = {
                 ATTR_SHUTTER: partial(set_shutter_id, raw_device),
                 ATTR_THERM: partial(set_therm_id, raw_device),
-                ATTR_UNKNOWN: partial(set_not_known_id_from_name, raw_device),
-                ATTR_SCENE: partial(set_scene_id, raw_device)
+                ATTR_SCENE: partial(set_by_name, raw_device),
+                ATTR_UNKNOWN: partial(set_by_name, raw_device)
             }
 
             fnc = switcher.get(raw_device[INELS_BUS_ATTR_DICT.get(ATTR_TYPE)])

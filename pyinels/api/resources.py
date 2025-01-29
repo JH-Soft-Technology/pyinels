@@ -4,22 +4,22 @@ import logging
 from pyinels.exception import ApiClassTypeException
 
 from pyinels.const import (
+    ATTR_ADDITION,
+    ATTR_DECIMAL_DIGITS,
     ATTR_DOWN,
     ATTR_GROUP,
     ATTR_ID,
+    ATTR_MAX_DISP,
+    ATTR_MIN_DISP,
+    ATTR_MULTIPLICATOR,
     ATTR_READ_ONLY,
     ATTR_RELE,
     ATTR_TEMP,
     ATTR_TEMP_SET,
     ATTR_TITLE,
     ATTR_TYPE,
-    ATTR_UP,
-    ATTR_MIN_DISP,
-    ATTR_MAX_DISP,
-    ATTR_MULTIPLICATOR,
-    ATTR_DECIMAL_DIGITS,
-    ATTR_ADDITION,
     ATTR_UNITS,
+    ATTR_UP,
     INELS_BUS_ATTR_DICT
 )
 
