@@ -108,4 +108,4 @@ STATE_CLOSING = "closing"
 STATE_OPEN = "open"
 STATE_OPENING = "opening"
 
-VERSION = "0.6.13"
+VERSION = "0.6.14"
