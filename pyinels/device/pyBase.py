@@ -30,6 +30,11 @@ class pyBase:
         return self._device.id
 
     @property
+    def group(self):
+        """Group of the device."""
+        return self._device.group
+
+    @property
     def up(self):
         """Value of shutter for up."""
         return self._device.value[self._device.up if self._device.up

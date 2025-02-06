@@ -44,6 +44,7 @@ DEVICE_TYPE_DICT = {
     "heating": "heating",
     "heat-control": "therm",
     "lights": "light",
+    "lamps": "light",
     "meter": "meter",
     "on_off": "switch",
     "scenes": "scenes",
