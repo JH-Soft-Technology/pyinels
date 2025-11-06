@@ -42,6 +42,11 @@ class pyBase:
                                   is not None else self._device.id]
 
     @property
+    def group(self):
+        """Group of the device."""
+        return self._device.group
+
+    @property
     def value(self):
         """Value of the device."""
         val = self._device.value[self._device.id]
