@@ -40,6 +40,10 @@ class pyBase:
         """Value of sutter for down."""
         return self._device.value[self._device.down if self._device.down
                                   is not None else self._device.id]
+    @property
+    def group(self):
+        """Group of the device."""
+        return self._device.group
 
     @property
     def value(self):
