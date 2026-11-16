@@ -50,6 +50,30 @@ variables `<room>_StateM/U/N/K` and `<room>_VM/U/N/K` are exported from IDM
 (`<room>` is the set point variable without the `_StateTH` suffix).
 Without them only the temperatures are read.
 
+Connection timeout
+------------------
+Every call to the Connection Server has a timeout (10 s by default). When the
+server does not answer in time, `ApiConnectionException` with code `timeout`
+is raised instead of waiting forever:
+
+```python
+api = Api("http://192.168.1.10", "8001", "CU3", timeout=5)
+```
+
+Missing variables
+-----------------
+When a variable is not published by the Connection Server (XML-RPC fault
+8002), `fetch_all_devices()` does not fail. The variable is logged once and
+skipped, the device gets `None` value and is not available. Call
+`api.reset_missing()` to try the skipped variables again (for example after
+the export in IDM is fixed).
+
+Changelog
+=========
+- **0.7.1** – timeout of the calls to the Connection Server, a variable not
+  published by the server does not break reading of the other devices.
+- **0.7.0** – heat control (`pyTherm`).
+
 Testing
 =======
 I use [tox](https://tox.readthedocs.io) for testing.
