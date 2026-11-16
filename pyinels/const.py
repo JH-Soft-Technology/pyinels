@@ -132,4 +132,4 @@ DEFAULT_TIMEOUT = 10
 # XML-RPC fault code of the variable not published by the Connection Server
 FAULT_VARIABLE_NOT_PUBLISHED = 8002
 
-VERSION = "0.7.0"
+VERSION = "0.7.1"
