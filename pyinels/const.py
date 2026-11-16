@@ -127,4 +127,9 @@ STATE_CLOSING = "closing"
 STATE_OPEN = "open"
 STATE_OPENING = "opening"
 
+# default timeout of the XML-RPC calls to the Connection Server (seconds)
+DEFAULT_TIMEOUT = 10
+# XML-RPC fault code of the variable not published by the Connection Server
+FAULT_VARIABLE_NOT_PUBLISHED = 8002
+
 VERSION = "0.7.0"

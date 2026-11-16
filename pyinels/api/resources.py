@@ -1,6 +1,8 @@
 """Class Api resources returned from the iNels BUS."""
 import logging
 
+from xmlrpc.client import Fault
+
 from pyinels.exception import ApiClassTypeException
 
 from pyinels.const import (
@@ -23,6 +25,7 @@ from pyinels.const import (
     ATTR_TYPE,
     ATTR_UNITS,
     ATTR_UP,
+    FAULT_VARIABLE_NOT_PUBLISHED,
     HEAT_LEVELS_DICT,
     INELS_BUS_ATTR_DICT
 )
@@ -142,6 +145,10 @@ class ApiResource:
     def set_value(self, value):
         self.__value = value
 
+    def set_levels_exported(self, exported):
+        """Switch reading of the heat control levels on or off."""
+        self.__levels_exported = exported
+
     def write_value(self, value, keep_value=False):
         """Set value to the device.
 
@@ -172,15 +179,24 @@ class ApiResource:
             try:
                 raw = self.__api.read(self.value_ids)
             except Exception:
-                if not self.level_ids:
+                level_ids = self.level_ids
+                if not level_ids:
                     raise
                 # level variables are not exported, read without them
+                raw = self.__api.read(
+                    [i for i in self.value_ids if i not in level_ids])
                 self.__levels_exported = False
-                raw = self.__api.read(self.value_ids)
 
             self.set_value(raw)
 
             return self.value
+        except Fault as ex:
+            if ex.faultCode != FAULT_VARIABLE_NOT_PUBLISHED:
+                raise ex
+            # variable is not published by the server, device unavailable
+            _LOGGER.debug("Device %s has no published value", self.id)
+            self.set_value(None)
+            return None
         except ApiClassTypeException as ex:
             self.set_value(None)
             raise ex
@@ -197,11 +213,17 @@ class ApiResource:
         if (hasattr(self, '_ApiResource__value')
                 and self._ApiResource__value is not None):
             return True
-        else:
-            # if not then try to observer
-            value = self.get_value()
+        if any(self.__api.is_missing(var_id) for var_id in self.value_ids):
+            # variable is not published by the server, do not ask again
+            return False
+        # if not then try to observer
+        value = self.get_value()
         # when the result is None then the device is not available
-        return False if value[self.id] is None else True
+        if value is None:
+            return False
+        if self.id in value:
+            return value[self.id] is not None
+        return True
 
     @property
     def min_display_value(self):
