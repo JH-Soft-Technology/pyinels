@@ -8,6 +8,8 @@ from pyinels.const import (
     ATTR_DECIMAL_DIGITS,
     ATTR_DOWN,
     ATTR_GROUP,
+    ATTR_HEAT_LEVEL_STATE,
+    ATTR_HEAT_SET_POINT_SUFFIX,
     ATTR_ID,
     ATTR_MAX_DISP,
     ATTR_MIN_DISP,
@@ -16,10 +18,12 @@ from pyinels.const import (
     ATTR_RELE,
     ATTR_TEMP,
     ATTR_TEMP_SET,
+    ATTR_THERM,
     ATTR_TITLE,
     ATTR_TYPE,
     ATTR_UNITS,
     ATTR_UP,
+    HEAT_LEVELS_DICT,
     INELS_BUS_ATTR_DICT
 )
 
@@ -96,6 +100,38 @@ class ApiResource:
         return self.__json[INELS_BUS_ATTR_DICT.get(ATTR_GROUP)]
 
     @property
+    def heat_control_base(self):
+        """Common prefix of the heat control variables.
+
+        Derived from the set point variable (e.g. Obyvak_StateTH -> Obyvak).
+        None when the device is not a heat control or the naming differs."""
+        set_point = self.temperature_set
+        if (self.type != ATTR_THERM or set_point is None
+                or not set_point.endswith(ATTR_HEAT_SET_POINT_SUFFIX)):
+            return None
+        return set_point[:-len(ATTR_HEAT_SET_POINT_SUFFIX)]
+
+    @property
+    def level_ids(self):
+        """Variables with the state of every heat control level."""
+        base = self.heat_control_base
+        if base is None or not self.__levels_exported:
+            return []
+        return [f'{base}{ATTR_HEAT_LEVEL_STATE}{level}'
+                for level in HEAT_LEVELS_DICT]
+
+    @property
+    def value_ids(self):
+        """All variables which has to be read to get the device value."""
+        if self.up is not None and self.down is not None:
+            return [self.up, self.down]
+
+        if self.type == ATTR_THERM and self.temperature_set is not None:
+            return [self.temperature, self.temperature_set] + self.level_ids
+
+        return [self.id]
+
+    @property
     def value(self):
         """Value of the returned object."""
         if hasattr(self, '_ApiResource__value'):
@@ -106,33 +142,41 @@ class ApiResource:
     def set_value(self, value):
         self.__value = value
 
-    def write_value(self, value):
-        """Set value to the device."""
+    def write_value(self, value, keep_value=False):
+        """Set value to the device.
+
+        With keep_value the read value is not replaced by the written one
+        (used when writing a variable which is not part of the value)."""
 
         if isinstance(value, int) or isinstance(value, float):
             value = {f'{self.id}': f'{value}'}
 
         self.__api.write(self, value)
-        self.set_value(value)
+        if not keep_value:
+            self.set_value(value)
 
     def __init__(self, json, api):
         """Initializer of the Api resource."""
         self.__json = json
         self.__api = api
         self.__value = None
+        # heat control levels are not exported on every installation,
+        # it is switched off when the first read of them fails
+        self.__levels_exported = True
 
     def get_value(self):
         """Read the current value of the device."""
         try:
             raw = None
 
-            # shutter in action
-            if self.up is not None and \
-                    self.down is not None:
-
-                raw = self.__api.read([self.up, self.down])
-            else:
-                raw = self.__api.read([self.id])
+            try:
+                raw = self.__api.read(self.value_ids)
+            except Exception:
+                if not self.level_ids:
+                    raise
+                # level variables are not exported, read without them
+                self.__levels_exported = False
+                raw = self.__api.read(self.value_ids)
 
             self.set_value(raw)
 
