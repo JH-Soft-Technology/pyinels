@@ -82,6 +82,25 @@ UNITS_DICT = {
     "%": "Percentage"
 }
 
+# Heat control levels. Every heat control exports for each level
+# <base>_State<L> (level is active) and <base>_V<L> (select the level),
+# where <base> is the name of the set point variable without suffix.
+ATTR_HEAT_LEVEL_SELECT = "_V"
+ATTR_HEAT_LEVEL_STATE = "_State"
+ATTR_HEAT_SET_POINT_SUFFIX = "_StateTH"
+
+HEAT_LEVEL_MINIMUM = "minimum"
+HEAT_LEVEL_ATTENUATION = "attenuation"
+HEAT_LEVEL_NORMAL = "normal"
+HEAT_LEVEL_COMFORT = "comfort"
+
+HEAT_LEVELS_DICT = {
+    "M": HEAT_LEVEL_MINIMUM,
+    "U": HEAT_LEVEL_ATTENUATION,
+    "N": HEAT_LEVEL_NORMAL,
+    "K": HEAT_LEVEL_COMFORT,
+}
+
 ERROR_VALUE = -1
 
 NAME = "pyinels"
@@ -108,4 +127,4 @@ STATE_CLOSING = "closing"
 STATE_OPEN = "open"
 STATE_OPENING = "opening"
 
-VERSION = "0.6.16"
+VERSION = "0.7.0"

@@ -126,21 +126,18 @@ class Api:
 
             for dev in self.__devices:
                 # shutters has composed ids, and inels dont have any
-                # for them so we need to use up and down identifiers instead
-                if dev.up is not None and dev.down is not None:
-                    dev_ids.append(dev.up)
-                    dev_ids.append(dev.down)
-                else:
-                    dev_ids.append(dev.id)
+                # for them so we need to use up and down identifiers instead.
+                # Heat controls needs more variables (set point, levels)
+                dev_ids.extend(dev.value_ids)
 
             data_values = self.read(dev_ids)
 
             # rerender data on all devices
             for dev in self.__devices:
-                if dev.up is not None and dev.down is not None:
+                if len(dev.value_ids) > 1:
                     dev.set_value({
-                        f'{dev.down}': data_values[dev.down],
-                        f'{dev.up}': data_values[dev.up]
+                        f'{dev_id}': data_values[dev_id]
+                        for dev_id in dev.value_ids
                     })
                 else:
                     dev.set_value({f'{dev.id}': f'{data_values[dev.id]}'})

@@ -24,6 +24,32 @@ Usage
 =====
 See the test directory for examples.
 
+Heat control
+------------
+Heat controls (`heat-control` in the Connection Server) are loaded as `therm`
+devices. Wrap them with `pyTherm` to get the room temperature, the set point
+and the active level:
+
+```python
+from pyinels.api import Api
+from pyinels.device.pyTherm import pyTherm
+
+api = Api("http://192.168.1.10", "8001", "CU3")
+therms = [pyTherm(d) for d in api.getAllDevices() if d.type == "therm"]
+api.fetch_all_devices()
+
+for t in therms:
+    print(t.name, t.current_temperature, t.target_temperature, t.level)
+
+therms[0].set_level("comfort")  # minimum / attenuation / normal / comfort
+```
+
+The set point is computed by the central unit from the active level, so it
+can not be written directly. Levels are available when the heat control
+variables `<room>_StateM/U/N/K` and `<room>_VM/U/N/K` are exported from IDM
+(`<room>` is the set point variable without the `_StateTH` suffix).
+Without them only the temperatures are read.
+
 Testing
 =======
 I use [tox](https://tox.readthedocs.io) for testing.

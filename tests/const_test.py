@@ -92,6 +92,12 @@ on_off:
 name="Zas loznice" column="3" inels="ZAS_13A_Loznice" read_only="no" row="0"
 """
 
+TEST_RAW_HEAT_CONTROL = """
+heat-control:
+name="Pokoj" read_only="no" therm="Pokoj_dole_Temperature" column="1" \
+stateth="Pokoj_dole_StateTH" rele="DIGITALGROUP_0001" row="4"
+"""
+
 TEST_RAW_GARAGE_DOOR = """
 garage:
 name="Vrata" column="0" inels="Vrata_Garaz" read_only="no" row="1"
